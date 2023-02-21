@@ -1,0 +1,9 @@
+<svg id="alerta" xmlns="http://www.w3.org/2000/svg" width="15.646" height="20" viewBox="0 0 15.646 20">
+  <g id="Grupo_419" data-name="Grupo 419" transform="translate(0)" fill-opacity=".9">
+    <g id="marcador-de-posicion" transform="translate(-13.565)">
+      <path id="Trazado_8100" data-name="Trazado 8100" d="M21.452,0V0h-.127V0a7.885,7.885,0,0,0-7.76,7.884c0,5.812,6.824,11.329,7.823,12.113,1-.784,7.823-6.3,7.823-12.113A7.885,7.885,0,0,0,21.452,0Zm0,11.276" fill="#801b1b" stroke="#fff" stroke-opacity=".1"/>
+    </g>
+        <circle id="Elipse_1" data-name="Elipse 1" cx="4.75" cy="4.25"  r="3" transform="translate(3 3)" fill="#fff"/>
+
+  </g>
+</svg>
