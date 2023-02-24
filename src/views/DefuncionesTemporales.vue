@@ -47,7 +47,7 @@ export default {
   beforeMount() {
     d3.csv("data/datos_2012_2021.csv").then((data) => {
       
-      this.procesamientoDatos(data.filter(d=>d.EDAD==1))
+      this.procesamientoDatos(data.filter(d=>d.EDAD==14))
 
       //this.datos = data;
     });
