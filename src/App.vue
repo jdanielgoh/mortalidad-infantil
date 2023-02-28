@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
+  <div id="app" class="contenedor-flex">
 
-    <router-view/>
+    <router-view class="vista-router-view"/>
   </div>
 </template>
 
@@ -11,9 +11,19 @@
   -moz-osx-font-smoothing: grayscale;
   color: black;
 }
+.contenedor-flex{
+  display: flex;
+
+}
 body{
   margin: 0;
   background: rgba(255,255,255,.7);
+  .vista-router-view{
+    padding: 0px 15px;
+    max-width: 1280px;
+    margin: auto;
+
+  }
 }
 #nav {
   padding: 30px;

@@ -10,6 +10,11 @@
             Defunciones por año y por sector
           </router-link>
         </li>
+        <li>
+          <router-link to="/chiapas">
+            Defunciones 2021 en Chiapas
+          </router-link>
+        </li>
         
       </ul>
     </nav>

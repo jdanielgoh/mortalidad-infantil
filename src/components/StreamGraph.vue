@@ -1,14 +1,6 @@
 <template>
   <div class="envolvente">
-    <div class="descripcion">
-      <div>
-        <h1>
-          Defunciones 
-        </h1>
-        
-      </div>
-    </div>
-
+    
 
     <div :id="stream_graph_id" class="contenedor-stream-graph">
       <div class="contenedor-tooltip-svg">
@@ -61,12 +53,7 @@
           ></p>
         </div>
       </div>
-      <div class="nomenclatura">
-        <div v-for="(variable, i) in variables" :key="i" class="variable">
-          <span :style="{ background: variable.color }"></span>
-          {{ variable.nombre }}
-        </div>
-      </div>
+      
     </div>
   </div>
 </template>
@@ -76,8 +63,7 @@ import * as d3 from "d3";
 
 export default {
   name: "DadsigAreasApiladas",
-  components: {
-  },
+  components: {},
 
   props: {
     stream_graph_id: String,
@@ -85,7 +71,6 @@ export default {
     variables: Array,
     titulo_eje_y: String,
     titulo_eje_x: String,
-
 
     nombre_columna_horizontal: String,
     conversionTemporal: {
@@ -141,7 +126,8 @@ export default {
             ];
           })
           .sort((a, b) => b[1] - a[1])
-          .map((d) => d[0]).slice(0,10);
+          .map((d) => d[0])
+          .slice(0, 10);
         return `Año: <b>${
           this.tooltip_data_seleccionada[this.nombre_columna_horizontal]
         }</b> <br/>${cifras_variables.join("")}`;
@@ -152,17 +138,17 @@ export default {
     variables(nv) {
       this.configurandoDimensionesParaSVG();
       this.configurandoDimensionesParaStream();
-      this.creandoStreams();
+      //this.creandoStreams();
       this.actualizandoStreams();
-      this.creandoBarras();
+      //this.creandoBarras();
       this.actualizandoBarras();
     },
     datos() {
       this.configurandoDimensionesParaSVG();
       this.configurandoDimensionesParaStream();
-      this.creandoStreams();
+      //this.creandoStreams();
       this.actualizandoStreams();
-      this.creandoBarras();
+      //this.creandoBarras();
       this.actualizandoBarras();
     },
     margen() {
@@ -179,7 +165,6 @@ export default {
     height: 0,
     height_vis: Number,
     lista_filtros_activos: Array,
-    data_porcentual: [],
     status_button: "Quitar todos",
     alto_vis: 450,
     tooltip_is_showing: false,
@@ -192,6 +177,7 @@ export default {
     opacidad_areas_over: 0.1,
     opacidad_barra_over: 1,
     duracion_transicion: 200,
+    duracion_transicio_cambio_data: 500,
   }),
   mounted() {
     //this.boton_otras = document.getElementById('boton_otras');
@@ -214,7 +200,7 @@ export default {
 
     this.ejes_anios = this.grupo_fondo
       .selectAll("g.ejes-anios")
-      .data(d3.range(1998, 2021))
+      .data(d3.range(2012, 2022))
       .enter();
 
     this.textos_ejes_anios = this.ejes_anios.append("text");
@@ -372,51 +358,51 @@ export default {
       ) {
         var dictsStack = [];
         for (
-          var indice_sector = 0;
-          indice_sector < this.data_apilada.length;
-          indice_sector++
+          var indice_franja = 0;
+          indice_franja < this.data_apilada.length;
+          indice_franja++
         ) {
           var min_val = d3.min(
             d3
               .range(this.data_apilada.length)
               .map((i) => this.data_apilada[i][indice_anio][0])
           );
-          dictsStack[indice_sector] = {
-            cat: indice_sector,
-            intervalo: this.data_apilada[indice_sector][indice_anio],
+          dictsStack[indice_franja] = {
+            cat: indice_franja,
+            intervalo: this.data_apilada[indice_franja][indice_anio],
             delta:
-              this.data_apilada[indice_sector][indice_anio][1] -
-              this.data_apilada[indice_sector][indice_anio][0],
+              this.data_apilada[indice_franja][indice_anio][1] -
+              this.data_apilada[indice_franja][indice_anio][0],
             minimo: min_val,
           };
         }
         let eff = dictsStack.sort((a, b) => d3.ascending(a.delta, b.delta));
         let contador_apilador = 0; //d3.min(dictsStack.map(d=> d.intervalo));
         for (
-          var indice_sector = 0;
-          indice_sector < this.data_apilada.length;
-          indice_sector++
+          var indice_franja = 0;
+          indice_franja < this.data_apilada.length;
+          indice_franja++
         ) {
-          if (indice_sector == 0) {
-            contador_apilador = dictsStack[indice_sector].minimo;
+          if (indice_franja == 0) {
+            contador_apilador = dictsStack[indice_franja].minimo;
           }
 
-          dictsStack[indice_sector].intervalo = [
+          dictsStack[indice_franja].intervalo = [
             contador_apilador,
-            contador_apilador + dictsStack[indice_sector].delta,
+            contador_apilador + dictsStack[indice_franja].delta,
           ];
-          this.data_apilada[dictsStack[indice_sector].cat][indice_anio][0] =
+          this.data_apilada[dictsStack[indice_franja].cat][indice_anio][0] =
             contador_apilador;
-          this.data_apilada[dictsStack[indice_sector].cat][indice_anio][1] =
-            contador_apilador + dictsStack[indice_sector].delta;
-          contador_apilador += dictsStack[indice_sector].delta;
+          this.data_apilada[dictsStack[indice_franja].cat][indice_anio][1] =
+            contador_apilador + dictsStack[indice_franja].delta;
+          contador_apilador += dictsStack[indice_franja].delta;
         }
       }
       this.escalaX = d3
         .scaleBand()
         .domain(this.datos.map((d) => +d[this.nombre_columna_horizontal]))
         .range([0, this.ancho])
-        .padding(0.85);
+        .paddingInner(0.85);
       this.escalaY = d3
         .scaleLinear()
         .domain([
@@ -430,11 +416,17 @@ export default {
       this.data_apilada.forEach((d) => {
         let datums_paddings = [];
         for (let i = 0; i < d.length; i++) {
-          datums_paddings.push([d[i], this.escalaX(+d[i].data[this.nombre_columna_horizontal])].flat());
           datums_paddings.push(
             [
               d[i],
-              this.escalaX(+d[i].data[this.nombre_columna_horizontal]) + this.escalaX.bandwidth(),
+              this.escalaX(+d[i].data[this.nombre_columna_horizontal]),
+            ].flat()
+          );
+          datums_paddings.push(
+            [
+              d[i],
+              this.escalaX(+d[i].data[this.nombre_columna_horizontal]) +
+                this.escalaX.bandwidth(),
             ].flat()
           );
         }
@@ -467,7 +459,9 @@ export default {
         .style("dominant-baseline", "middle")
         .style("font-size", "12px");
 
-      this.eje_y.call(d3.axisLeft(this.escalaY).ticks(4));
+      this.eje_y.transition()
+        .duration(600)
+        .call(d3.axisLeft(this.escalaY).ticks(4));
       this.eje_y
         .selectAll("line")
         .attr("x1", this.ancho)
@@ -479,6 +473,7 @@ export default {
       this.grupo_contenedor.selectAll("path.paths-streams").remove();
 
       this.grupo_contenedor.selectAll("path.paths-streams").remove();
+      //console.log(this.data_apilada[0])
       this.streams_apilados = this.grupo_contenedor
         .selectAll("gpaths")
         .data(this.data_apilada)
@@ -488,8 +483,7 @@ export default {
         .style("fill-opacity", this.opacidad_areas_default)
         .style("stroke", "white")
 
-        .style("stroke-opacity", ".3")
-        .style("fill", (d, i) => this.variables[i].color);
+        .style("stroke-opacity", ".3");
       if (this.tooltip_activo) {
         this.svg
           .on("mousemove", (evento) => {
@@ -498,42 +492,87 @@ export default {
           .on("mouseout", this.cerrarTooltip);
       }
     },
-    actualizandoStreams() {
-      this.streams_apilados
-        .data(this.data_apilada)
-        .transition()
-        .duration(500)
-        .attr("d", (d) => this.generadorAreaBezier(d));
+    actualizandoStreams(transicion = true) {
+      if(transicion){
+        this.streams_apilados
+          .data(this.data_apilada)
+          .transition()
+          .delay((d, i) => i * 5)
+          .duration(this.duracion_transicio_cambio_data)
+          .attr("d", (d) => this.generadorAreaBezier(d))
+          .transition()
+          .duration(this.duracion_transicio_cambio_data)
+          //.duration(this.duracion_transicio_cambio_data)
+          .style("fill", (d, i) => this.variables[i].color);
+      }else{
+        this.streams_apilados
+          .data(this.data_apilada)
+          .attr("d", (d) => this.generadorAreaBezier(d))
+          .style("fill", (d, i) => this.variables[i].color);
+      }
+      
     },
     creandoBarras() {
       this.grupo_fondo.selectAll(".g-rects").remove();
-      this.barras_apiladas = this.grupo_fondo
-        .selectAll(".g-rects")
-        .data(this.data_apilada)
-        .enter()
-        .append("g")
-        .attr("class", (d) => `${d.key} g-rects`)
-        .style("fill", (d, i) => this.variables[i].color);
-      this.barras_individuales = this.barras_apiladas
-        .selectAll("rect")
-        .data((d) => d)
-        .enter()
-        .append("rect")
-        .attr("rx", "1")
-        .style("fill-opacity", this.opacidad_barras_default);
+      
     },
     actualizandoBarras() {
-      this.barras_individuales
+      this.grupo_fondo
+        .selectAll(".g-rects")
+        .data(this.data_apilada)
+        .join(
+          (enter) =>
+            enter.append("g"),
+
+          null, // no update function
+
+          (exit) => {
+            exit
+              .transition()
+              .duration(this.duracion_transicio_cambio_data)
+              .style("fill-opacity", 0)
+              .remove();
+          }
+        )
+        .attr("class", (d) => `${d.key} g-rects`)
+        .style("fill", (d, i) => this.variables[i].color)
+        .selectAll("rect")
+        .data(
+          (d) => d,
+          (d) => d.data.key
+        )
+        .join(
+          (enter) =>
+            enter
+              .append("rect")
+              .attr("width", this.escalaX.bandwidth)
+              .attr("height", (d) => this.escalaY(d[0]) - this.escalaY(d[1]))
+              .attr("x", (d) => this.escalaX(+d.data[this.nombre_columna_horizontal]))
+              .attr("y", (d) => this.escalaY(d[1]))
+              .style("fill-opacity", this.opacidad_barras_default),
+          (join) => join,
+          (exit) => {
+            exit
+              .transition()
+              .duration(this.duracion_transicio_cambio_data)
+              .style("fill-opacity", 0)
+              .remove();
+          }
+        )  
+        //.transition()
+        //.delay((d, i) => i * 5)
+        //.duration(5 * this.duracion_transicio_cambio_data)
         .attr("width", this.escalaX.bandwidth)
         .attr("height", (d) => this.escalaY(d[0]) - this.escalaY(d[1]))
         .attr("x", (d) => this.escalaX(+d.data[this.nombre_columna_horizontal]))
-        .attr("y", (d) => this.escalaY(d[1]));
+        .attr("y", (d) => this.escalaY(d[1]))
+        .style("fill-opacity", this.opacidad_barras_default);
     },
 
     reescalandoPantalla() {
       this.configurandoDimensionesParaSVG();
       this.configurandoDimensionesParaStream();
-      this.actualizandoStreams();
+      this.actualizandoStreams(false);
       this.actualizandoBarras();
     },
     mostrarTooltip(evento) {
@@ -545,7 +584,8 @@ export default {
       if (this.tooltip_indice < this.datos.length) {
         this.tooltip_categoria = this.escalaX.domain()[this.tooltip_indice];
         this.tooltip_data_seleccionada = this.data_apilada[0].filter(
-          (dd) => dd.data[this.nombre_columna_horizontal] == this.tooltip_categoria
+          (dd) =>
+            dd.data[this.nombre_columna_horizontal] == this.tooltip_categoria
         )[0].data;
         this.tooltip
           .style("visibility", "visible")
@@ -576,15 +616,21 @@ export default {
             : evento.layerY - 10 - alto_tooltip) + "px"
         );
 
-        this.barras_individuales
-          .filter((d) => d.data[this.nombre_columna_horizontal] != this.tooltip_categoria)
+        this.grupo_contenedor.selectAll("rect")
+          .filter(
+            (d) =>
+              d.data[this.nombre_columna_horizontal] != this.tooltip_categoria
+          )
           .interrupt()
           //.transition()
           //.duration(this.duracion_transicion)
           .style("fill-opacity", this.opacidad_barras_over);
 
-        this.barras_individuales
-          .filter((d) => d.data[this.nombre_columna_horizontal] == this.tooltip_categoria)
+          this.grupo_contenedor.selectAll("rect")
+          .filter(
+            (d) =>
+              d.data[this.nombre_columna_horizontal] == this.tooltip_categoria
+          )
           .interrupt()
           //.transition()
           //.duration(this.duracion_transicion)
@@ -601,7 +647,7 @@ export default {
     cerrarTooltip() {
       this.tooltip.style("visibility", "hidden");
 
-      this.barras_individuales
+      this.grupo_contenedor.selectAll("rect")
         //.transition()
         //.duration(this.duracion_transicion)
         .interrupt()
@@ -615,13 +661,17 @@ export default {
     },
     generadorAreaBezier(datum) {
       if (datum.length > 2) {
-        var txt = `M ${this.escalaX(+datum[0].data[this.nombre_columna_horizontal])}, ${this.escalaY(
-          datum[0][1]
-        )}`;
+        var txt = `M ${this.escalaX(
+          +datum[0].data[this.nombre_columna_horizontal]
+        )}, ${this.escalaY(datum[0][1])}`;
         for (let i = 0; i < datum.length - 1; i++) {
           //let x00 = this.escalaX(+datum[i-1].data.Year) - this.escalaX.bandwidth() * .5
-          let x_i = this.escalaX(+datum[i].data[this.nombre_columna_horizontal]);
-          let x_i_mas_1 = this.escalaX(+datum[i + 1].data[this.nombre_columna_horizontal]);
+          let x_i = this.escalaX(
+            +datum[i].data[this.nombre_columna_horizontal]
+          );
+          let x_i_mas_1 = this.escalaX(
+            +datum[i + 1].data[this.nombre_columna_horizontal]
+          );
 
           let x_i_bandwidth = x_i + this.escalaX.bandwidth();
           let x_mid = 0.5 * (x_i_mas_1 - x_i_bandwidth) + x_i_bandwidth;
@@ -635,8 +685,12 @@ export default {
         txt += `V ${this.escalaY(datum[datum.length - 1][0])}`;
         for (let i = datum.length - 1; i > 0; i--) {
           //let x00 = this.escalaX(+datum[i-1].data.Year) - this.escalaX.bandwidth() * .5
-          let x_i = this.escalaX(+datum[i].data[this.nombre_columna_horizontal]);
-          let x_i_menos_1 = this.escalaX(+datum[i - 1].data[this.nombre_columna_horizontal]);
+          let x_i = this.escalaX(
+            +datum[i].data[this.nombre_columna_horizontal]
+          );
+          let x_i_menos_1 = this.escalaX(
+            +datum[i - 1].data[this.nombre_columna_horizontal]
+          );
           let x_i_bandwidth_menos_1 = this.escalaX.bandwidth() + x_i_menos_1;
 
           let x_mid =
@@ -665,27 +719,7 @@ export default {
     }
   }
 }
-.contenedor-stream-graph {
-  position: relative;
-  .nomenclatura {
-    font-size: 14px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px 15px;
-    .variable {
-      span {
-        transform: translateY(2px);
-        width: 16px;
-        height: 16px;
-        display: inline-block;
-        border-radius: 5px;
-        @media (max-width: 768px) {
-          width: 16px;
-        }
-      }
-    }
-  }
-}
+
 svg.svg-streamgraph {
   position: absolute;
   top: 0;
