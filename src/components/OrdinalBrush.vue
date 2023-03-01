@@ -77,6 +77,8 @@ export default {
         this.g = this.svg.append("g")
             .call(this.brush);
 
+        this.brushed({selection: [0, this.ancho]})
+        this.brushended({selection: [0, this.ancho], sourceEvent:true})
     }, 
     methods: {
         brushed({selection}) {
@@ -103,9 +105,15 @@ export default {
 
                 this.$store.commit(this.getter_store, this.listado_seleccionado);
 
-        }
+        },
+        
     },     
 
 }
 
 </script>
+<style lang="scss">
+rect.handle{
+    fill:black
+}
+</style>

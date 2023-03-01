@@ -1,59 +1,56 @@
 <template>
-  <div class="envolvente">
-    
+  <div :id="stream_graph_id" class="contenedor-stream-graph">
+    <div class="cargador"></div>
 
-    <div :id="stream_graph_id" class="contenedor-stream-graph">
-      <div class="contenedor-tooltip-svg">
-        <div class="tooltip">
-          <div class="tooltip-contenido">
-            <div class="contenedor-boton-cerrar">
-              <button class="boton-cerrar-tooltip" @click="cerrarTooltip">
-                &times;
-              </button>
-            </div>
-            <div class="tooltip-cifras"></div>
+    <div class="contenedor-tooltip-svg">
+      <div class="tooltip">
+        <div class="tooltip-contenido">
+          <div class="contenedor-boton-cerrar">
+            <button class="boton-cerrar-tooltip" @click="cerrarTooltip">
+              &times;
+            </button>
           </div>
-        </div>
-        <div class="rotation-wrapper-outer">
-          <div class="rotation-wrapper-inner">
-            <div
-              :style="{
-                width: `${alto_vis - margen.arriba - margen.abajo}px`,
-                transform: `rotate(-90deg)translateX(calc(-100% - ${
-                  0.5 * margen.arriba
-                }px))`,
-              }"
-              class="element-to-rotate"
-            >
-              <p style="padding: 10px 0 5px 0" v-html="titulo_eje_y"></p>
-            </div>
-          </div>
-        </div>
-        <svg class="svg-streamgraph">
-          <g class="grupo-fondo">
-            <g class="eje-y"></g>
-          </g>
-          <g class="grupo-contenedor-de-streams"></g>
-          <g class="grupo-contenedor-de-ejes"></g>
-
-          <g class="grupo-frente">
-            <g class="eje-x"></g>
-            <g class="eje-y"></g>
-            <line class="guia-x"></line>
-          </g>
-        </svg>
-        <div class="eje-x">
-          <p
-            :style="{
-              padding: `${margen.abajo + 10}px ${margen.derecha}px 0 ${
-                margen.izquierda + ancho_leyenda_y
-              }px `,
-            }"
-            v-html="titulo_eje_x"
-          ></p>
+          <div class="tooltip-cifras"></div>
         </div>
       </div>
-      
+      <div class="rotation-wrapper-outer">
+        <div class="rotation-wrapper-inner">
+          <div
+            :style="{
+              width: `${alto_vis - margen.arriba - margen.abajo}px`,
+              transform: `rotate(-90deg)translateX(calc(-100% - ${
+                0.5 * margen.arriba
+              }px))`,
+            }"
+            class="element-to-rotate"
+          >
+            <p style="padding: 10px 0 5px 0" v-html="titulo_eje_y"></p>
+          </div>
+        </div>
+      </div>
+      <svg class="svg-streamgraph">
+        <g class="grupo-fondo">
+          <g class="eje-y"></g>
+        </g>
+        <g class="grupo-contenedor-de-streams"></g>
+        <g class="grupo-contenedor-de-ejes"></g>
+
+        <g class="grupo-frente">
+          <g class="eje-x"></g>
+          <g class="eje-y"></g>
+          <line class="guia-x"></line>
+        </g>
+      </svg>
+      <div class="eje-x">
+        <p
+          :style="{
+            padding: `${margen.abajo + 10}px ${margen.derecha}px 0 ${
+              margen.izquierda + ancho_leyenda_y
+            }px `,
+          }"
+          v-html="titulo_eje_x"
+        ></p>
+      </div>
     </div>
   </div>
 </template>
@@ -85,7 +82,7 @@ export default {
 
     ancho_tooltip: {
       type: Number,
-      default: 210,
+      default: 260,
     },
 
     tickFormat: {
@@ -101,6 +98,10 @@ export default {
         derecha: 10,
       }),
     },
+    hover_activo: {
+      type: Boolean,
+      default: true,
+    },
     textoTooltip: {
       type: Function,
       default: function () {
@@ -114,13 +115,13 @@ export default {
                               <span class="nomenclatura-tooltip" style="background: ${
                                 d.color
                               } "></span>
-                              ${d.nombre} <b>${parseInt(
-                this.tooltip_data_seleccionada[d.id]
-              )}</b>
-                              (${Math.round(
+                              ${d.nombre}| <b> muertes: ${
+                this.tooltip_data_seleccionada[d.id + "_absoluto"] 
+              }</b> | tasa: ${Math.round(100 * this.tooltip_data_seleccionada[d.id] ) / 100}
+              | % anual: ${Math.round(
                                 (100 * this.tooltip_data_seleccionada[d.id]) /
                                   total_muestras
-                              )}%)
+                              )}
                               </p>`,
               parseInt(this.tooltip_data_seleccionada[d.id]),
             ];
@@ -459,7 +460,8 @@ export default {
         .style("dominant-baseline", "middle")
         .style("font-size", "12px");
 
-      this.eje_y.transition()
+      this.eje_y
+        .transition()
         .duration(600)
         .call(d3.axisLeft(this.escalaY).ticks(4));
       this.eje_y
@@ -493,45 +495,41 @@ export default {
       }
     },
     actualizandoStreams(transicion = true) {
-      if(transicion){
+      if (transicion) {
         this.streams_apilados
+          .interrupt()
+
           .data(this.data_apilada)
+
           .transition()
           .delay((d, i) => i * 5)
-          .duration(this.duracion_transicio_cambio_data)
+          .duration(0.5 * this.duracion_transicio_cambio_data)
           .attr("d", (d) => this.generadorAreaBezier(d))
           .transition()
-          .duration(this.duracion_transicio_cambio_data)
+          .duration(0.3 * this.duracion_transicio_cambio_data)
           //.duration(this.duracion_transicio_cambio_data)
           .style("fill", (d, i) => this.variables[i].color);
-      }else{
+      } else {
         this.streams_apilados
           .data(this.data_apilada)
           .attr("d", (d) => this.generadorAreaBezier(d))
           .style("fill", (d, i) => this.variables[i].color);
       }
-      
     },
     creandoBarras() {
       this.grupo_fondo.selectAll(".g-rects").remove();
-      
     },
     actualizandoBarras() {
       this.grupo_fondo
         .selectAll(".g-rects")
         .data(this.data_apilada)
         .join(
-          (enter) =>
-            enter.append("g"),
+          (enter) => enter.append("g"),
 
           null, // no update function
 
           (exit) => {
-            exit
-              .transition()
-              .duration(this.duracion_transicio_cambio_data)
-              .style("fill-opacity", 0)
-              .remove();
+            exit.style("fill-opacity", 0).remove();
           }
         )
         .attr("class", (d) => `${d.key} g-rects`)
@@ -547,21 +545,17 @@ export default {
               .append("rect")
               .attr("width", this.escalaX.bandwidth)
               .attr("height", (d) => this.escalaY(d[0]) - this.escalaY(d[1]))
-              .attr("x", (d) => this.escalaX(+d.data[this.nombre_columna_horizontal]))
+              .attr("x", (d) =>
+                this.escalaX(+d.data[this.nombre_columna_horizontal])
+              )
               .attr("y", (d) => this.escalaY(d[1]))
               .style("fill-opacity", this.opacidad_barras_default),
           (join) => join,
           (exit) => {
-            exit
-              .transition()
-              .duration(this.duracion_transicio_cambio_data)
-              .style("fill-opacity", 0)
-              .remove();
+            exit.style("fill-opacity", 0).remove();
           }
-        )  
-        //.transition()
-        //.delay((d, i) => i * 5)
-        //.duration(5 * this.duracion_transicio_cambio_data)
+        )
+
         .attr("width", this.escalaX.bandwidth)
         .attr("height", (d) => this.escalaY(d[0]) - this.escalaY(d[1]))
         .attr("x", (d) => this.escalaX(+d.data[this.nombre_columna_horizontal]))
@@ -576,88 +570,98 @@ export default {
       this.actualizandoBarras();
     },
     mostrarTooltip(evento) {
-      this.tooltip_bandas = this.escalaX.step();
-      this.tooltip_indice = parseInt(
-        (evento.layerX - this.margen.izquierda - this.margen.derecha) /
-          this.tooltip_bandas
-      );
-      if (this.tooltip_indice < this.datos.length) {
-        this.tooltip_categoria = this.escalaX.domain()[this.tooltip_indice];
-        this.tooltip_data_seleccionada = this.data_apilada[0].filter(
-          (dd) =>
-            dd.data[this.nombre_columna_horizontal] == this.tooltip_categoria
-        )[0].data;
-        this.tooltip
-          .style("visibility", "visible")
-          .style(
-            "left",
-            evento.layerX >
-              0.5 * (this.ancho + this.margen.izquierda + this.margen.derecha)
-              ? `${
-                  evento.layerX - this.ancho_tooltip + this.ancho_leyenda_y - 20
-                }px`
-              : `${evento.layerX + this.ancho_leyenda_y + 20}px`
-          )
-          //.style("width", this.ancho_tooltip + "px")
-          .style("top", evento.layerY + 10 + "px");
-        let contenido_tooltip = this.tooltip
-          .select(".tooltip-contenido")
-          .style("min-width", this.ancho_tooltip + "px")
-          .style("width", this.ancho_tooltip + "px")
-          .style("padding", "0 3px 0 10px");
-        contenido_tooltip
-          .select("div.tooltip-cifras")
-          .html(this.textoTooltip());
-        let alto_tooltip = parseInt(contenido_tooltip.style("height"));
-        this.tooltip.style(
-          "top",
-          (evento.layerY < this.alto - alto_tooltip
-            ? evento.layerY + 10
-            : evento.layerY - 10 - alto_tooltip) + "px"
+      if (this.hover_activo) {
+        this.tooltip_bandas = this.escalaX.step();
+        this.tooltip_indice = parseInt(
+          (evento.layerX - this.margen.izquierda - this.margen.derecha) /
+            this.tooltip_bandas
         );
+        if (this.tooltip_indice < this.datos.length) {
+          this.tooltip_categoria = this.escalaX.domain()[this.tooltip_indice];
+          this.tooltip_data_seleccionada = this.data_apilada[0].filter(
+            (dd) =>
+              dd.data[this.nombre_columna_horizontal] == this.tooltip_categoria
+          )[0].data;
+          this.tooltip
+            .style("visibility", "visible")
+            .style(
+              "left",
+              evento.layerX >
+                0.5 * (this.ancho + this.margen.izquierda + this.margen.derecha)
+                ? `${
+                    evento.layerX -
+                    this.ancho_tooltip +
+                    this.ancho_leyenda_y -
+                    20
+                  }px`
+                : `${evento.layerX + this.ancho_leyenda_y + 20}px`
+            )
+            //.style("width", this.ancho_tooltip + "px")
+            .style("top", evento.layerY + 10 + "px");
+          let contenido_tooltip = this.tooltip
+            .select(".tooltip-contenido")
+            .style("min-width", this.ancho_tooltip + "px")
+            .style("width", this.ancho_tooltip + "px")
+            .style("padding", "0 3px 0 10px");
+          contenido_tooltip
+            .select("div.tooltip-cifras")
+            .html(this.textoTooltip());
+          let alto_tooltip = parseInt(contenido_tooltip.style("height"));
+          this.tooltip.style(
+            "top",
+            (evento.layerY < this.alto - alto_tooltip
+              ? evento.layerY + 10
+              : evento.layerY - 10 - alto_tooltip) + "px"
+          );
 
-        this.grupo_contenedor.selectAll("rect")
-          .filter(
-            (d) =>
-              d.data[this.nombre_columna_horizontal] != this.tooltip_categoria
-          )
-          .interrupt()
-          //.transition()
-          //.duration(this.duracion_transicion)
-          .style("fill-opacity", this.opacidad_barras_over);
+          this.grupo_contenedor
+            .selectAll("rect")
+            .filter(
+              (d) =>
+                d.data[this.nombre_columna_horizontal] != this.tooltip_categoria
+            )
+            .interrupt()
+            //.transition()
+            //.duration(this.duracion_transicion)
+            .style("fill-opacity", this.opacidad_barras_over);
 
-          this.grupo_contenedor.selectAll("rect")
-          .filter(
-            (d) =>
-              d.data[this.nombre_columna_horizontal] == this.tooltip_categoria
-          )
-          .interrupt()
-          //.transition()
-          //.duration(this.duracion_transicion)
-          .style("fill-opacity", this.opacidad_barra_over);
+          this.grupo_contenedor
+            .selectAll("rect")
+            .filter(
+              (d) =>
+                d.data[this.nombre_columna_horizontal] == this.tooltip_categoria
+            )
+            .interrupt()
+            //.transition()
+            //.duration(this.duracion_transicion)
+            .style("fill-opacity", this.opacidad_barra_over);
 
-        this.streams_apilados
-          .interrupt()
-          .transition()
-          .duration(this.duracion_transicion)
-          .style("fill-opacity", this.opacidad_areas_over);
+          this.streams_apilados
+            .interrupt()
+            .transition()
+            .duration(this.duracion_transicion)
+            .style("fill-opacity", this.opacidad_areas_over);
+        }
       }
     },
 
     cerrarTooltip() {
-      this.tooltip.style("visibility", "hidden");
+      if (this.hover_activo) {
+        this.tooltip.style("visibility", "hidden");
 
-      this.grupo_contenedor.selectAll("rect")
-        //.transition()
-        //.duration(this.duracion_transicion)
-        .interrupt()
-        .style("fill-opacity", this.opacidad_barras_default);
-      this.streams_apilados
-        .interrupt()
-        .transition()
-        .duration(this.duracion_transicion)
-        .style("fill-opacity", this.opacidad_areas_default);
-      this.tooltip_data_seleccionada = {};
+        this.grupo_contenedor
+          .selectAll("rect")
+          //.transition()
+          //.duration(this.duracion_transicion)
+          .interrupt()
+          .style("fill-opacity", this.opacidad_barras_default);
+        this.streams_apilados
+          .interrupt()
+          .transition()
+          .duration(this.duracion_transicion)
+          .style("fill-opacity", this.opacidad_areas_default);
+        this.tooltip_data_seleccionada = {};
+      }
     },
     generadorAreaBezier(datum) {
       if (datum.length > 2) {
