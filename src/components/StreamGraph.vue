@@ -59,7 +59,7 @@
 import * as d3 from "d3";
 
 export default {
-  name: "DadsigAreasApiladas",
+  name: "Stream",
   components: {},
 
   props: {
@@ -116,12 +116,13 @@ export default {
                                 d.color
                               } "></span>
                               ${d.nombre}| <b> muertes: ${
-                this.tooltip_data_seleccionada[d.id + "_absoluto"] 
-              }</b> | tasa: ${Math.round(100 * this.tooltip_data_seleccionada[d.id] ) / 100}
+                this.tooltip_data_seleccionada[d.id + "_absoluto"]
+              }</b> | tasa: ${
+                Math.round(100 * this.tooltip_data_seleccionada[d.id]) / 100
+              }
               | % anual: ${Math.round(
-                                (100 * this.tooltip_data_seleccionada[d.id]) /
-                                  total_muestras
-                              )}
+                (100 * this.tooltip_data_seleccionada[d.id]) / total_muestras
+              )}
                               </p>`,
               parseInt(this.tooltip_data_seleccionada[d.id]),
             ];
@@ -207,96 +208,18 @@ export default {
     this.textos_ejes_anios = this.ejes_anios.append("text");
 
     this.configurandoDimensionesParaSVG();
-    this.configurandoDimensionesParaStream();
-    this.creandoStreams();
-    this.actualizandoStreams();
-    this.creandoBarras();
-    this.actualizandoBarras();
 
+      this.configurandoDimensionesParaStream();
+      this.creandoStreams();
+      this.actualizandoStreams();
+      this.creandoBarras();
+      this.actualizandoBarras();
     this.tooltip = d3.select("div#" + this.stream_graph_id + " div.tooltip");
 
     window.addEventListener("resize", this.reescalandoPantalla);
   },
   methods: {
-    multiFormat(date) {
-      /**
-       * Método para traducir el formato de fecha
-       */
-      this.locale = d3.timeFormatLocale({
-        decimal: ",",
-        thousands: ".",
-        grouping: [3],
-        currency: ["€", ""],
-        dateTime: "%A, %e %B %Y г. %X",
-        date: "%d.%m.%Y",
-        time: "%H:%M:%S",
-        periods: ["AM", "PM"],
-        days: [
-          "Domingo",
-          "Lunes",
-          "Martes",
-          "Miércoles",
-          "Jueves",
-          "Viernes",
-          "Sábado",
-        ],
-        shortDays: ["Dom", "Lun", "Mar", "Mi", "Jue", "Vie", "Sab"],
-        months: [
-          "Enero",
-          "Febrero",
-          "Marzo",
-          "Abril",
-          "Mayo",
-          "Junio",
-          "Julio",
-          "Agosto",
-          "Septiembre",
-          "Octubre",
-          "Noviembre",
-          "Diciembre",
-        ],
-        shortMonths: [
-          "ene",
-          "feb",
-          "mar",
-          "abr",
-          "may",
-          "jun",
-          "jul",
-          "ago",
-          "sep",
-          "oct",
-          "nov",
-          "dic",
-        ],
-      });
-      this.formatMillisecond = this.locale.format(".%L");
-      this.formatSecond = this.locale.format(":%S");
-      this.formatMinute = this.locale.format("%I:%M");
-      this.formatHour = this.locale.format("%I %p");
-      this.formatDay = this.locale.format("%a %d");
-      this.formatWeek = this.locale.format("%b %d");
-      this.formatMonth = this.locale.format("%b");
-      this.formatMonthYear = this.locale.format("%b/%Y");
-      this.formatYear = this.locale.format("%Y");
-      return (
-        d3.timeSecond(date) < date
-          ? this.formatMillisecond
-          : d3.timeMinute(date) < date
-          ? this.formatSecond
-          : d3.timeHour(date) < date
-          ? this.formatMinute
-          : d3.timeDay(date) < date
-          ? this.formatHour
-          : d3.timeMonth(date) < date
-          ? d3.timeWeek(date) < date
-            ? this.formatDay
-            : this.formatWeek
-          : d3.timeYear(date) < date
-          ? this.formatMonthYear
-          : this.formatMonthYear
-      )(date);
-    },
+
     configurandoDimensionesParaSVG() {
       this.ancho_leyenda_y = document.querySelector(
         "#" +
@@ -475,7 +398,6 @@ export default {
       this.grupo_contenedor.selectAll("path.paths-streams").remove();
 
       this.grupo_contenedor.selectAll("path.paths-streams").remove();
-      //console.log(this.data_apilada[0])
       this.streams_apilados = this.grupo_contenedor
         .selectAll("gpaths")
         .data(this.data_apilada)
@@ -505,9 +427,6 @@ export default {
           .delay((d, i) => i * 5)
           .duration(0.5 * this.duracion_transicio_cambio_data)
           .attr("d", (d) => this.generadorAreaBezier(d))
-          .transition()
-          .duration(0.3 * this.duracion_transicio_cambio_data)
-          //.duration(this.duracion_transicio_cambio_data)
           .style("fill", (d, i) => this.variables[i].color);
       } else {
         this.streams_apilados
@@ -520,7 +439,7 @@ export default {
       this.grupo_fondo.selectAll(".g-rects").remove();
     },
     actualizandoBarras() {
-      this.grupo_fondo
+      this.grupo_contenedor
         .selectAll(".g-rects")
         .data(this.data_apilada)
         .join(
@@ -573,7 +492,10 @@ export default {
       if (this.hover_activo) {
         this.tooltip_bandas = this.escalaX.step();
         this.tooltip_indice = parseInt(
-          (evento.layerX - this.margen.izquierda - this.margen.derecha) /
+          (evento.layerX -
+            this.margen.izquierda -
+            this.margen.derecha +
+            this.tooltip_bandas * 0.5) /
             this.tooltip_bandas
         );
         if (this.tooltip_indice < this.datos.length) {
@@ -621,8 +543,6 @@ export default {
                 d.data[this.nombre_columna_horizontal] != this.tooltip_categoria
             )
             .interrupt()
-            //.transition()
-            //.duration(this.duracion_transicion)
             .style("fill-opacity", this.opacidad_barras_over);
 
           this.grupo_contenedor
@@ -632,14 +552,10 @@ export default {
                 d.data[this.nombre_columna_horizontal] == this.tooltip_categoria
             )
             .interrupt()
-            //.transition()
-            //.duration(this.duracion_transicion)
             .style("fill-opacity", this.opacidad_barra_over);
 
           this.streams_apilados
             .interrupt()
-            .transition()
-            .duration(this.duracion_transicion)
             .style("fill-opacity", this.opacidad_areas_over);
         }
       }
@@ -651,14 +567,10 @@ export default {
 
         this.grupo_contenedor
           .selectAll("rect")
-          //.transition()
-          //.duration(this.duracion_transicion)
           .interrupt()
           .style("fill-opacity", this.opacidad_barras_default);
         this.streams_apilados
           .interrupt()
-          .transition()
-          .duration(this.duracion_transicion)
           .style("fill-opacity", this.opacidad_areas_default);
         this.tooltip_data_seleccionada = {};
       }
@@ -668,12 +580,13 @@ export default {
         var txt = `M ${this.escalaX(
           +datum[0].data[this.nombre_columna_horizontal]
         )}, ${this.escalaY(datum[0][1])}`;
+        let x_i_mas_1;
         for (let i = 0; i < datum.length - 1; i++) {
           //let x00 = this.escalaX(+datum[i-1].data.Year) - this.escalaX.bandwidth() * .5
           let x_i = this.escalaX(
             +datum[i].data[this.nombre_columna_horizontal]
           );
-          let x_i_mas_1 = this.escalaX(
+          x_i_mas_1 = this.escalaX(
             +datum[i + 1].data[this.nombre_columna_horizontal]
           );
 
@@ -683,10 +596,15 @@ export default {
           let y_i = this.escalaY(datum[i][1]);
           let y_i_mas_1 = this.escalaY(datum[i + 1][1]);
 
-          txt += `H ${x_i_bandwidth} C ${x_mid} ${y_i}, ${x_mid} ${y_i_mas_1}, ${x_i_mas_1} ${y_i_mas_1}H ${x_i_mas_1}`;
+          txt += `H ${x_i_bandwidth} C ${x_mid} ${y_i}, 
+          ${x_mid} ${y_i_mas_1}, 
+          ${x_i_mas_1} ${y_i_mas_1}H ${x_i_mas_1}`;
         }
+        txt += `H ${x_i_mas_1 + this.escalaX.bandwidth()}`;
 
         txt += `V ${this.escalaY(datum[datum.length - 1][0])}`;
+        txt += `H ${x_i_mas_1 - this.escalaX.bandwidth()}`;
+
         for (let i = datum.length - 1; i > 0; i--) {
           //let x00 = this.escalaX(+datum[i-1].data.Year) - this.escalaX.bandwidth() * .5
           let x_i = this.escalaX(
