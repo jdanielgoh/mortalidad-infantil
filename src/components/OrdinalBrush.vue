@@ -70,7 +70,7 @@ export default {
             .join("text")
             .attr("x", d => this.x(d))
             .attr("dy", "0.35em")
-            .attr("font-size", "14px")
+            .attr("font-size", "12px")
 
             .text(d => d);
         
@@ -87,7 +87,7 @@ export default {
 
                 const i0 = d3.bisectRight(range, selection[0]);
                 const i1 = d3.bisectRight(range, selection[1]);
-                this.bar.attr("fill", (d, i) => i0 <= i && i < i1 ? "orange" : null);
+                this.bar.attr("fill", (d, i) => i0 <= i && i < i1 ? "#36d9c1" : null);
                 this.bar.attr("activa",  (d, i) => i0 <= i && i < i1 ? true : null);
                 this.listado_seleccionado = this.x.domain().slice(i0, i1)
             } else {

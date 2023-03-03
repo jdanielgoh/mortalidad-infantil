@@ -1,0 +1,9 @@
+<IfModule mod_rewrite.c>
+
+    RewriteEngine On
+    RewriteBase /proyectos/mortalidad-infancia/
+    RewriteRule ^/proyectos/mortalidad-infancia/index\.html$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /proyectos/mortalidad-infancia/index.html [L]
+</IfModule>
