@@ -124,11 +124,11 @@ export default {
                 (100 * this.tooltip_data_seleccionada[d.id]) / total_muestras
               )}
                               </p>`,
-              parseInt(this.tooltip_data_seleccionada[d.id]),
+              parseInt(this.tooltip_data_seleccionada[d.id + "_absoluto"]),
             ];
           })
           .sort((a, b) => b[1] - a[1])
-          .map((d) => d[0])
+          .map((d) => {console.log(d); return d[0]})
           .slice(0, 10);
         return `Año: <b>${
           this.tooltip_data_seleccionada[this.nombre_columna_horizontal]
@@ -174,7 +174,7 @@ export default {
     ancho_leyenda_y: 0,
     tooltip_data_seleccionada: {},
     opacidad_barras_default: 1,
-    opacidad_areas_default: 0.7,
+    opacidad_areas_default: 0.8,
     opacidad_barras_over: 0.1,
     opacidad_areas_over: 0.1,
     opacidad_barra_over: 1,
@@ -520,7 +520,8 @@ export default {
             )
             //.style("width", this.ancho_tooltip + "px")
             .style("top", evento.layerY + 10 + "px");
-          let contenido_tooltip = this.tooltip
+          
+            let contenido_tooltip = this.tooltip
             .select(".tooltip-contenido")
             .style("min-width", this.ancho_tooltip + "px")
             .style("width", this.ancho_tooltip + "px")

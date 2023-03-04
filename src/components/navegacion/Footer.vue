@@ -66,7 +66,6 @@ footer.contenedor {
             flex-wrap: nowrap;
             justify-content: space-between;
             padding: 0 16px;
-            width: 100%;
         }
         
         .marca{
@@ -87,7 +86,6 @@ footer.contenedor {
         }
   div.ancho-max {
     padding: 0 16px;
-    width: 100%;
     max-width: 1280px;
     margin:auto;
 

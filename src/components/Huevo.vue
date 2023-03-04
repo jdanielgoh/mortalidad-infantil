@@ -1,7 +1,16 @@
 <template>
-  <div class="contenedor-stream-nomenclatura">
-    <div class="contenedor-nomenclatura"></div>
-    <div class="contenedor-stream" :id="id_stream_circular">
+  <div :style="{ height: alto + 100 + 'px' }">
+    <div class="contenedor-tooltip-svg" :id="id_stream_circular">
+      <div class="tooltip">
+        <div class="tooltip-contenido">
+          <div class="contenedor-boton-cerrar">
+            <button class="boton-cerrar-tooltip" @click="cerrarTooltip">
+              &times;
+            </button>
+          </div>
+          <div class="tooltip-cifras"></div>
+        </div>
+      </div>
       <svg class="svg-stream">
         <g class="grupo-contenedor-de-stream" />
         <g class="eje-x" />
@@ -23,7 +32,10 @@ export default {
         return { arriba: 30, abajo: 30, izquierda: 30, derecha: 30 };
       },
     },
-
+    ancho_tooltip: {
+      type: Number,
+      default: 260,
+    },
     alto_vis: {
       type: Number,
       default: function () {
@@ -36,6 +48,18 @@ export default {
     variables: {
       Array,
     },
+    textoTooltip: {
+      type: Function,
+      default: function () {
+        let txt = `<b> ${this.meses[this.tooltip_data_seleccionada.mes - 1]}</b> <br>`
+        let datum = this.variables.map(d=> {return {cve: d.cve, cant: this.tooltip_data_seleccionada[d.cve], color : d.color, causa: d.causa}}).sort((a,b) => b.cant - a.cant)
+        for(let i = 0; i< this.variables.length; i++){
+          txt += `<p><span class="nomenclatura-tooltip" style="background: ${datum[i].color} "></span>
+            <b> ${datum[i].cant.toLocaleString("en")}</b> ${datum[i].causa}  <p>`
+        }
+        return txt 
+      },
+    }
   },
   data() {
     return {
@@ -55,6 +79,7 @@ export default {
         "Noviembre",
         "Diciembre",
       ],
+      alto:0
     };
   },
 
@@ -65,14 +90,15 @@ export default {
     this.grupo_contenedor = this.svg.select("g.grupo-contenedor-de-stream");
     this.eje_x = this.svg.select("g.eje-x");
     this.eje_y = this.svg.select("g.eje-y");
-
+    this.tooltip = d3.select("div#" + this.id_stream_circular)
+        .select("div.tooltip");
     this.configurandoDimensionesSVG();
 
-    if (this.datos.length > 0) {
-      this.configurandoDimensionesStreams();
-      this.agregandoNomenclatura();
-      this.creandoStreams();
-    }
+    this.configurandoDimensionesStreams();
+    this.agregandoNomenclatura();
+    this.creandoStreams();
+    this.actualizandoStreams();
+
     window.addEventListener("resize", this.reescalandoPantalla);
   },
   methods: {
@@ -93,6 +119,7 @@ export default {
           this.margen.arriba + 0.5 * this.alto
         })`
       );
+      
     },
     configurandoDimensionesStreams() {
       this.escalaAng = d3
@@ -115,6 +142,21 @@ export default {
         .offset(d3.stackOffsetNone)
         .keys(this.variables.map((d) => d.cve))(this.datos);
       this.reordenamientoDatosApilados();
+      this.area = d3
+        .area()
+        .x0(
+          (d, i) => this.escalaRad(d[0]) * Math.cos(this.escalaAng(d.data.mes))
+        )
+        .x1(
+          (d, i) => this.escalaRad(d[1]) * Math.cos(this.escalaAng(d.data.mes))
+        )
+        .y0(
+          (d, i) => this.escalaRad(d[0]) * Math.sin(this.escalaAng(d.data.mes))
+        )
+        .y1(
+          (d, i) => this.escalaRad(d[1]) * Math.sin(this.escalaAng(d.data.mes))
+        )
+        .curve(d3.curveCatmullRomClosed);
     },
     reordenamientoDatosApilados() {
       for (var i = 0; i < this.datos.length; i++) {
@@ -173,7 +215,7 @@ export default {
         .attr("y", (d) => this.rmax * Math.sin(this.escalaAng(d)))
         .text((d) => this.meses[parseInt(d - 1)])
         .style("fill-opacity", ".8")
-        .style("font-family", "Roboto")
+        .style("font-family", "Poppins")
         //.style("text-anchor","middle")
         .style("dominant-baseline", "middle")
         .style("text-anchor", "middle")
@@ -192,14 +234,14 @@ export default {
             .attr("x", "-0.5em")
             .attr(
               "y",
-              (d) => -this.escalaRad(this.escalaRad.ticks(5).pop()) - 10
+              -this.escalaRad(0)
             )
-            .attr("dy", "-1em")
+            .attr("dy", "+1em")
             .style("fill", "#1a1a1a")
             .attr("class", "radial-escala")
             .style("fill", "#000")
+            .attr("text-anchor","middle")
             .text("Defunciones")
-     
         )
         .call((g) =>
           g
@@ -225,53 +267,105 @@ export default {
 
                 .style("fill", "#000")
                 .text(this.escalaRad.tickFormat(6, "s"))
-            
             )
         );
     },
     creandoStreams() {
-      this.area = d3
-        .area()
-        .x0(
-          (d, i) => this.escalaRad(d[0]) * Math.cos(this.escalaAng(d.data.mes))
-        )
-        .x1(
-          (d, i) => this.escalaRad(d[1]) * Math.cos(this.escalaAng(d.data.mes))
-        )
-        .y0(
-          (d, i) => this.escalaRad(d[0]) * Math.sin(this.escalaAng(d.data.mes))
-        )
-        .y1(
-          (d, i) => this.escalaRad(d[1]) * Math.sin(this.escalaAng(d.data.mes))
-        )
-        .curve(d3.curveCatmullRomClosed);
-
-      this.streams_apilados = this.grupo_contenedor
-        .selectAll("streams")
+      this.grupo_contenedor
+        .selectAll("path")
         .data(this.datos_apilados)
-        .enter()
-        .append("path")
-        .attr("class", "areas")
-        .style("fill-opacity", 0.6)
+        .join(
+          (enter) => enter.append("path").transition().duration(1000).attr("d", this.area),
+          null, // no update function
+
+          (exit) => {
+            exit.style("fill-opacity", 0).remove();
+          }
+        )
+        .attr("class", (d) => "cve-" + d.key)
+        .transition().duration(1000).attr("d", this.area)
+
         .style(
           "fill",
           (d) => this.variables.filter((v) => v.cve == d.key)[0].color
         )
-        .attr("d", this.area)
-        .attr("class", (d) => "cve-" + d.key);
+        .style("fill-opacity", 0.8);
+        this.svg
+          .on("mousemove", (evento) => {
+            this.mostrarTooltip(evento);
+          })
+          .on("mouseout", this.cerrarTooltip);
+    },
+    cerrarTooltip(){
+      this.tooltip.style("visibility", "hidden");
+
     },
     actualizandoStreams() {
-      this.streams_apilados
+      this.grupo_contenedor
+        .selectAll("path")
         .data(this.datos_apilados)
+        .join(
+          (enter) => enter.append("path").transition().duration(1000).attr("d", this.area),
+          null, // no update function
 
-        .transition()
-        .duration(1000)
+          (exit) => {
+            exit.style("fill-opacity", 0).remove();
+          }
+        )
+        .attr("class", (d) => "cve-" + d.key)
+
+        .transition().duration(1000).attr("d", this.area)
         .style(
           "fill",
           (d) => this.variables.filter((v) => v.cve == d.key)[0].color
         )
-        .attr("d", this.area)
-        .attr("class", (d) => "cve-" + d.key);
+        .style("fill-opacity", 0.8);
+    },
+    mostrarTooltip(evento){
+      let x = evento.layerX - 0.5 * this.ancho;
+      let y = evento.layerY - 0.5 * this.alto;
+      let angulo = Math.atan(y / x) + 0.5 * Math.PI;
+      if (x >= 0) {
+        angulo = angulo;
+      } else {
+        angulo = angulo + Math.PI;
+      }
+      angulo = angulo - .5 * Math.PI
+      let bisectCantidad = d3.bisector((d) => d).center;
+        let y0 = this.escalaAng.invert(angulo);
+        let indiceY = bisectCantidad([1,2,3,4,5,6,7,8,9,10,11,12].map(d => d), y0)
+      this.tooltip_data_seleccionada = this.datos.filter(d=>indiceY == d.mes-1)[0];
+      
+      this.tooltip
+        .style("visibility", "visible")
+        .style(
+          "left",
+          `${
+            angulo < Math.PI
+              ? evento.layerX - this.ancho_tooltip - 15
+              : evento.layerX + 15
+          }px`
+        )
+        .attr("width", this.ancho_tooltip)
+        .attr("height", 30);
+        let contenido_tooltip = this.tooltip
+            .select(".tooltip-contenido")
+            .style("min-width", this.ancho_tooltip + "px")
+            .style("width", this.ancho_tooltip + "px")
+            .style("padding", "0 3px 0 10px");
+          contenido_tooltip
+            .select("div.tooltip-cifras")
+            .html(this.textoTooltip());
+   
+      this.tooltip.style(
+        "top",
+        `${
+          angulo > 0.5 * Math.PI && angulo < 1.5 * Math.PI
+            ? evento.layerY - parseInt(contenido_tooltip.style("height")) - 10
+            : evento.layerY + 15
+        }px`
+      );
+      
     },
     reescalandoPantalla() {
       this.grupo_contenedor.selectAll("path").remove();
@@ -280,12 +374,18 @@ export default {
       this.configurandoDimensionesStreams();
       this.agregandoNomenclatura();
       this.creandoStreams();
+      this.actualizandoStreams();
     },
   },
   watch: {
-    datos(nv) {
+    datos(nv, ov) {
+      this.configurandoDimensionesSVG();
+
       this.configurandoDimensionesStreams();
       this.agregandoNomenclatura();
+      if (ov.length < 1) {
+        this.creandoStreams();
+      }
       this.actualizandoStreams();
     },
   },
@@ -293,4 +393,66 @@ export default {
 </script>
 
 <style scoped lang="scss">
+div.contenedor-tooltip-svg {
+  position: relative;
+  svg {
+    position: absolute;
+    top: 0;
+  }
+  div.tooltip {
+    color: #000;
+    font-size: 12px;
+    position: absolute;
+    z-index: 2;
+    visibility: hidden;
+    backdrop-filter: blur(5px);
+    background: rgba(222, 222, 222, 0.5);
+    border-radius: 4px;
+  }
+
+  div.tooltip:deep() div.tooltip-cifras {
+    padding-bottom: 5px;
+
+    p {
+      margin: 3px;
+
+      span.nomenclatura-tooltip {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: solid 1px rgba(0, 0, 0, 0.5);
+        display: inline-block;
+      }
+    }
+  }
+
+  div.tooltip div.contenedor-boton-cerrar {
+    height: auto;
+    display: flex;
+    width: 100%;
+    padding-top: 5px;
+    font-weight: 600;
+  }
+
+  div.tooltip button.boton-cerrar-tooltip {
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    line-height: 0.9;
+    font-weight: 300;
+    padding: 0 5px;
+    border-radius: 5px;
+    margin: 0 0 0 auto;
+    @media (min-width: 768px) {
+      display: none;
+    }
+    cursor: pointer;
+
+    img {
+      width: 30px;
+      height: 30px;
+      float: right;
+    }
+  }
+}
 </style>

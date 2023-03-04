@@ -92,6 +92,9 @@ export default {
         return true
       }
     },
+    seleccionada:{
+      type: String
+    },
     textoTooltip: {
       type: Function,
       default: function () {
@@ -269,7 +272,8 @@ export default {
           .data((d) => d)
           .enter()
           .append("rect")
-          .style("fill", (d, i) => {return d.data.color})
+          .style("fill", (d,i) =>d.data.clave == this.seleccionada ? "#000" : "#6e6e6e")
+          //.style("fill", (d, i) => {return d.data.color})
 
       if (this.tooltip_activo) {
         this.svg
@@ -391,7 +395,7 @@ svg.svg-barras {
 div.contenedor-tooltip-svg {
   position: relative;
   svg{
-    z-index: 1;
+    z-index: 0;
   }
   .rotation-wrapper-outer {
     display: table;

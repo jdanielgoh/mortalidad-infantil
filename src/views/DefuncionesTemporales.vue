@@ -6,41 +6,61 @@
         <div class="contenedor-selectores">
           <div class="contenedor-selector">
             <p>Entidad</p>
-        <select
-          name="selector-entidad"
-          id="selector-entidad"
-          v-model="estado_seleccionado"
-        >
-          <option
-            v-for="(entidad, i) in entidades"
-            :value="entidad.cve"
-            :key="i"
-          >
-            {{ entidad.estado }}
-          </option>
-        </select>
+            <select
+              name="selector-entidad"
+              id="selector-entidad"
+              v-model="estado_seleccionado"
+            >
+              <option
+                v-for="(entidad, i) in entidades"
+                :value="entidad.cve"
+                :key="i"
+              >
+                {{ entidad.estado }}
+              </option>
+            </select>
           </div>
           <div class="contenedor-selector">
             <p>Sexo</p>
-        <select
-          name="selector-sexo"
-          id="selector-sexo"
-          v-model="sexo_seleccionado"
-        >
-          <option v-for="(sexo, i) in sexos" :value="sexo.cve" :key="i">
-            {{ sexo.sexo }}
-          </option>
-        </select>
+            <select
+              name="selector-sexo"
+              id="selector-sexo"
+              v-model="sexo_seleccionado"
+            >
+              <option v-for="(sexo, i) in sexos" :value="sexo.cve" :key="i">
+                {{ sexo.sexo }}
+              </option>
+            </select>
           </div>
         </div>
-        
-        
+
         <p>Selecciona un rango de edad (años)</p>
 
         <OrdinalBrush :getter_store="'cambiaRangoEdadPrincipal'"></OrdinalBrush>
         <div class="contenedor-barras">
-          <h3> Tasa de mortalidad en 2021 por estado de personas {{ ` ${rango_edad_principal.length > 1 ?  rango_edad_principal[0] + " a " + rango_edad_principal.slice(-1) + " años " : rango_edad_principal[0] +" año" }`   }} y de 
-          {{ ` ${sexo_seleccionado == 0 ? "ambos sexos" : sexo_seleccionado == 1 ? "sexo masculino" : "sexo femenino"}` }}</h3>
+          <h3>
+            Tasa de mortalidad en 2021 por estado de personas
+            {{
+              ` ${
+                rango_edad_principal.length > 1
+                  ? rango_edad_principal[0] +
+                    " a " +
+                    rango_edad_principal.slice(-1) +
+                    " años "
+                  : rango_edad_principal[0] + " año"
+              }`
+            }}
+            y de
+            {{
+              ` ${
+                sexo_seleccionado == 0
+                  ? "ambos sexos"
+                  : sexo_seleccionado == 1
+                  ? "sexo masculino"
+                  : "sexo femenino"
+              }`
+            }}
+          </h3>
           <Barras
             :barras_id="'id-barras'"
             :datos="data_estatal_2021"
@@ -52,6 +72,7 @@
             titulo_eje_y="Estados"
             titulo_eje_x="Tasa de mortalidad "
             orientacion="horizontal"
+            :seleccionada="estado_seleccionado"
             :margen="{ arriba: 10, abajo: 30, izquierda: 54, derecha: 0 }"
             :alto_vis="400"
           >
@@ -59,11 +80,43 @@
         </div>
       </div>
       <div class="col-visualizaciones">
-        <h2>{{ `Tasa de defunciones anuales ${estado_seleccionado=="00" ? "a nivel nacional" : " en " + claves_estatales[estado_seleccionado]}`  }} de personas de 
-          {{ ` ${rango_edad_principal.length > 1 ?  rango_edad_principal[0] + " a " + rango_edad_principal.slice(-1) + " años " : rango_edad_principal[0] +" año" }`   }} y de 
-          {{ ` ${sexo_seleccionado == 0 ? "ambos sexos" : sexo_seleccionado == 1 ? "sexo masculino" : "sexo femenino"}` }}
+        <h2>
+          {{
+            `Tasa de defunciones anuales ${
+              estado_seleccionado == "00"
+                ? "a nivel nacional"
+                : " en " + claves_estatales[estado_seleccionado]
+            }`
+          }}
+          de personas de
+          {{
+            ` ${
+              rango_edad_principal.length > 1
+                ? rango_edad_principal[0] +
+                  " a " +
+                  rango_edad_principal.slice(-1) +
+                  " años "
+                : rango_edad_principal[0] + " año"
+            }`
+          }}
+          y de
+          {{
+            ` ${
+              sexo_seleccionado == 0
+                ? "ambos sexos"
+                : sexo_seleccionado == 1
+                ? "sexo masculino"
+                : "sexo femenino"
+            }`
+          }}
         </h2>
-        <p>El diagrama de areas apiladas ordenadas muestra, con el grosor de cada franja, la tasa de defunciones por año y por causa. Además, estas franjas se reordenan de abajo hacia arriba de forma ascendente permitiendo identificar el top 10 de causas por año mediante el globo de información al pasar tu cursor en un año</p>
+        <p>
+          El diagrama de areas apiladas ordenadas muestra, con el grosor de cada
+          franja, la tasa de defunciones por año y por causa. Además, estas
+          franjas se reordenan de abajo hacia arriba de forma ascendente
+          permitiendo identificar el top 10 de causas por año mediante el globo
+          de información al pasar tu cursor en un año
+        </p>
         <StreamGraph
           :stream_graph_id="'streamgraph1'"
           :datos="datos"
@@ -87,22 +140,51 @@
             class="variable"
           >
             <span :style="{ background: variable.color }"></span>
-             <b>{{i +1 }}<sup>a</sup> causa:</b> {{  catalogo[variable.cve] }}
+            <b>{{ i + 1 }}<sup>a</sup> causa:</b> {{ catalogo[variable.cve] }}
           </div>
         </div>
-        <h2> Acumulado mensual de defunciones {{ ` ${estado_seleccionado=="00" ? "a nivel nacional" : " en " + claves_estatales[estado_seleccionado]}`  }} de personas de 
-          {{ ` ${rango_edad_principal.length > 1 ?  rango_edad_principal[0] + " a " + rango_edad_principal.slice(-1) + " años " : rango_edad_principal[0] +" año" }`   }} y de 
-          {{ ` ${sexo_seleccionado == 0 ? "ambos sexos" : sexo_seleccionado == 1 ? "sexo masculino" : "sexo femenino"}` }} de 2012 a 2021 del top 10 de causas de defunción</h2>
-        Esta visualización de areas apiladas radial muestra el número de defunciones por cada causa que han ocurrido desde 2012 a 2021 según el mes. Permite identificar en cuales periodos alguna de estas causas ha cobrado mayor relevancia.
+        <h2>
+          Acumulado mensual de defunciones
+          {{
+            ` ${
+              estado_seleccionado == "00"
+                ? "a nivel nacional"
+                : " en " + claves_estatales[estado_seleccionado]
+            }`
+          }}
+          de personas de
+          {{
+            ` ${
+              rango_edad_principal.length > 1
+                ? rango_edad_principal[0] +
+                  " a " +
+                  rango_edad_principal.slice(-1) +
+                  " años "
+                : rango_edad_principal[0] + " año"
+            }`
+          }}
+          y de
+          {{
+            ` ${
+              sexo_seleccionado == 0
+                ? "ambos sexos"
+                : sexo_seleccionado == 1
+                ? "sexo masculino"
+                : "sexo femenino"
+            }`
+          }}
+          de 2012 a 2021 del top 10 de causas de defunción
+        </h2>
+        Esta visualización de areas apiladas radial muestra el número de
+        defunciones por cada causa que han ocurrido desde 2012 a 2021 según el
+        mes. Permite identificar en cuales periodos alguna de estas causas ha
+        cobrado mayor relevancia.
         <Huevo
           id_stream_circular="huevo"
+          :variables='totales.slice(0, 10).map((d) => ( { cve: d.cve, color: d.color , causa: catalogo[d.cve]}))'
           :datos="casos_mensuales_agrupados"
-          :variables="
-            totales.slice(0, 10).map((d) => {
-              return { cve: d.cve, color: d.color };
-            })
-          "
-        >
+          
+          >
         </Huevo>
       </div>
     </div>
@@ -199,7 +281,7 @@ export default {
   },
   data() {
     return {
-      claves_estatales:claves_estatales,
+      claves_estatales: claves_estatales,
       modal_visible: false,
       catalogo: diccionario_causas,
       datos: [],
@@ -216,13 +298,13 @@ export default {
         "#002642",
         "#840032",
         "#E59500",
-        "#724E91",
+        "#6F1DAE",
         "#20A4F3",
-        "#7D2E68",
-        "#4C8577",
+        "#82A407",
+        "#CB45DA",
         "#F75C03",
-        "#89043D",
-        "#7F2982",
+        "#0077DF",
+        "#00955e",
       ],
       entidades: Object.keys(claves_estatales)
         .sort((a, b) => a - b)
@@ -336,6 +418,7 @@ export default {
               conapo_2021.get(this.entidades[i].cve)),
           defunciones: estatales_2021.get(this.entidades[i].cve),
           poblacion: conapo_2021.get(this.entidades[i].cve),
+          clave:this.entidades[i].cve
         });
       }
       this.data_estatal_2021 = data_estatal_2021;
@@ -469,23 +552,23 @@ export default {
 
     position: relative;
     .col-controles {
-      top:50px;
+      top: 50px;
       position: sticky;
-      position: -webkit-sticky; 
-      align-self: flex-start; 
-      .contenedor-selectores{
+      position: -webkit-sticky;
+      align-self: flex-start;
+      .contenedor-selectores {
         display: flex;
         width: 100%;
         gap: 8px;
-        .contenedor-selector{
+        .contenedor-selector {
           width: 50%;
-          select{
-            width:100%;
+          select {
+            width: 100%;
             padding: 8px;
             background: transparent;
             border-radius: 4px;
           }
-        } 
+        }
       }
       width: 300px;
       .contenedor-brush {
@@ -494,6 +577,17 @@ export default {
     }
     .col-visualizaciones {
       width: calc(100% - 300px);
+    }
+    @media (max-width: 768px) {
+      display: inline-block;
+      .col-controles {
+        top:0;
+        position:relative;
+        width: 100%;;
+      }
+      .col-visualizaciones {
+      width: 100%;
+    }
     }
   }
 

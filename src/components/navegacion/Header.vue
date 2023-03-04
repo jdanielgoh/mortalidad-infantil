@@ -38,7 +38,6 @@ $margen-lateral: 16px;
             flex-wrap: nowrap;
             justify-content: space-between;
             padding: 0 16px;
-            width: 100%;
         }
         
         .marca{
