@@ -327,6 +327,9 @@ export default {
       casos_mensuales_agrupados: [{ data: [] }],
     };
   },
+  mounted(){
+    this.$ga.page('/');
+  },
   beforeMount() {
     d3.csv("data/poblaciones_conapo.csv").then((data_conapo) => {
       data_conapo.forEach((d) => {
