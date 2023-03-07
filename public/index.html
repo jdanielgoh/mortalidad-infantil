@@ -6,11 +6,27 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>ico_tc.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
-    <title>Mortalidad infantil y adolescente en México</title>
+    <title><%= process.env.VUE_APP_TITLE %></title>
+    <meta name="description" content="<%= process.env.VUE_APP_DESCRIPTION %>">
+    <meta name="og:url" content="https://tirandocodigo.mx/proyectos/mortalidad-infancia/">
+    <meta name="og:title" content="<%= process.env.VUE_APP_TITLE %>">
+
+    <meta name="og:site_name" content="<%= process.env.VUE_APP_TITLE %>">
+    <meta name="og:description" content="<%= process.env.VUE_APP_DESCRIPTION %>">
+    <meta name="og:image" content="<%= process.env.VUE_APP_DOMAIN %> <%= process.env.VUE_APP_BASE_ROUTE %>mortalidad-infantil.png">
+    <meta name="og:type" content="website">
+    <meta name="og:locale" content="es_MX">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= process.env.VUE_APP_TITLE %>">
+    <meta name="twitter:description" content="<%= process.env.VUE_APP_DESCRIPTION %>">
+    <meta name="twitter:image" content="<%= process.env.VUE_APP_DOMAIN %> <%= process.env.VUE_APP_BASE_ROUTE %>mortalidad-infantil.png">
+
+
   </head>
   <body>
     <noscript>
