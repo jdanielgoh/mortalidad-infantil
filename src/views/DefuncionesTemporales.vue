@@ -2,6 +2,8 @@
   <div id="vista-defunciones-temporales">
     <div class="contenedor-flex">
       <div class="contenedor-texto">
+        <router-link to="/en">Read in English</router-link>
+
         <h1>Mortalidad de niñas, niños y adolescentes en México</h1>
         <p>
           Este proyecto surge a partir del

@@ -2,6 +2,7 @@
   <div id="vista-defunciones-temporales">
     <div class="contenedor-flex">
       <div class="contenedor-texto">
+        <router-link to="/">Leer en español</router-link>
         <h1>Child and Adolescents Mortality in Mexico</h1>
         <p>
           This project emerged from the
