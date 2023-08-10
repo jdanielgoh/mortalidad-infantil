@@ -514,6 +514,9 @@ export default {
                     evento.layerX -
                     this.ancho_tooltip +
                     this.ancho_leyenda_y -
+                    20< 0 ?  0 : evento.layerX -
+                    this.ancho_tooltip +
+                    this.ancho_leyenda_y -
                     20
                   }px`
                 : `${evento.layerX + this.ancho_leyenda_y + 20}px`
