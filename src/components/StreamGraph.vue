@@ -142,7 +142,6 @@ export default {
       this.configurandoDimensionesParaStream();
       //this.creandoStreams();
       this.actualizandoStreams();
-      //this.creandoBarras();
       this.actualizandoBarras();
     },
     datos() {
@@ -150,12 +149,10 @@ export default {
       this.configurandoDimensionesParaStream();
       //this.creandoStreams();
       this.actualizandoStreams();
-      //this.creandoBarras();
       this.actualizandoBarras();
     },
     margen() {
       this.reescalandoPantalla();
-      this.creandoBarras();
       this.actualizandoBarras();
     },
   },
@@ -193,34 +190,32 @@ export default {
     this.grupo_frente = this.svg.select("g.grupo-frente");
     this.grupo_fondo = this.svg.select("g.grupo-fondo");
 
-    this.eje_x = this.grupo_frente.select("g.eje-x");
     this.eje_y = this.grupo_fondo.select("g.eje-y");
-
-    this.guia_x = this.grupo_frente
-      .select("line.guia-x")
-      .style("stroke", "gray");
-
+    // El eje x se construyó artesanalmente, no se usaron funciones axis de d3 para este eje
     this.ejes_anios = this.grupo_fondo
       .selectAll("g.ejes-anios")
       .data(d3.range(2012, 2022))
       .enter();
-
     this.textos_ejes_anios = this.ejes_anios.append("text");
+
+
 
     this.configurandoDimensionesParaSVG();
 
       this.configurandoDimensionesParaStream();
       this.creandoStreams();
       this.actualizandoStreams();
-      this.creandoBarras();
       this.actualizandoBarras();
     this.tooltip = d3.select("div#" + this.stream_graph_id + " div.tooltip");
 
     window.addEventListener("resize", this.reescalandoPantalla);
   },
   methods: {
-
+    /**
+     * Obtiene  y asigna dimensiones a svg y hace traslaciones de grupos generales
+     */
     configurandoDimensionesParaSVG() {
+      // Un tamaño extra que considerar del título del eje y
       this.ancho_leyenda_y = document.querySelector(
         "#" +
           this.stream_graph_id +
@@ -247,27 +242,29 @@ export default {
           this.margen.arriba - this.alto * 0
         })`
       );
-      //.attr("transform", `translate(${this.margen.izquierda},${this.margen.arriba - this.alto * .5})`)
 
       this.grupo_fondo.attr(
         "transform",
         `translate(${this.margen.izquierda},${this.margen.arriba})`
       );
-      //.attr("transform", `translate(${this.margen.izquierda},${this.margen.arriba - this.alto * .5})`)
 
       this.grupo_frente.attr(
         "transform",
         `translate(${this.margen.izquierda},${this.margen.arriba})`
       );
     },
+    /**
+     * Formatea los datos de manera optima para el stream
+     */
     configurandoDimensionesParaStream() {
       this.datos.forEach((d) => {
         d.fech = this.conversionTemporal(d[this.nombre_columna_horizontal]);
       });
+      // Esta función de d3 apila datos
       this.data_apilada = d3.stack().keys(this.variables.map((d) => d.id))(
-        //.offset(d3.stackOffsetSilhouette)
         this.datos
       );
+      // Le famos un formato más manejable a la data apilada
       for (let i = this.variables.length - 1; i >= 0; i -= 1) {
         this.data_apilada[i].forEach((dd) => {
           dd.data = Object.assign({}, dd.data, {
@@ -275,6 +272,8 @@ export default {
           });
         });
       }
+      // Este ciclo es complejo y ES EL QUE REORDENA LOS STREAMS y los rankea en cada año
+      // Puedes comentarlo para observar como se pintan los datos sin esta funcion
       for (
         var indice_anio = 0;
         indice_anio < this.datos.length;
@@ -322,6 +321,7 @@ export default {
           contador_apilador += dictsStack[indice_franja].delta;
         }
       }
+      // Definimos escala X y Y
       this.escalaX = d3
         .scaleBand()
         .domain(this.datos.map((d) => +d[this.nombre_columna_horizontal]))
@@ -356,23 +356,17 @@ export default {
         }
         d.datums_paddings = datums_paddings;
       });
-      this.guia_x
-        .attr("x1", 0)
-        .attr("y1", this.escalaY(0))
-        .attr("x2", 0)
-        .attr("y2", this.escalaY(100))
-        .style("stroke-opacity", 0);
+      // Esta función de d3 pinta los streams, pero no me gusta del todo. aún así, más abajo la puedes probar
+      // PAra compararla con mi propia función
       this.area = d3
         .area()
-
-        .x((d) => this.escalaX(d.data.fech))
+        .x((d) => this.escalaX(+d.data[this.nombre_columna_horizontal]))
         .y0((d) => this.escalaY(d[0]))
         .y1((d) => this.escalaY(d[1]))
         .curve(d3.curveCatmullRom);
 
+      // dibujamos los años del eje x 
       this.textos_ejes_anios
-        //.attr("x",d=> this.escalaX(this.conversionTemporal(d)))
-        //.attr("y",this.alto_vis - this.margen.abajo)
         .text((d) => d)
         .style("transform", (d) => {
           return `translate(${this.escalaX(d) + this.escalaX.bandwidth()}px,${
@@ -395,9 +389,9 @@ export default {
       this.eje_y.selectAll("path").remove();
     },
     creandoStreams() {
+      // Se ejecuta al inicio
       this.grupo_contenedor.selectAll("path.paths-streams").remove();
 
-      this.grupo_contenedor.selectAll("path.paths-streams").remove();
       this.streams_apilados = this.grupo_contenedor
         .selectAll("gpaths")
         .data(this.data_apilada)
@@ -418,14 +412,15 @@ export default {
     },
     actualizandoStreams(transicion = true) {
       if (transicion) {
+        // En esta linea, hay dos .attr("d"), uno con la función de area de d3 y otra 
+        // con una función que me inventé. Compáralas comentando y descomentando :) 
         this.streams_apilados
           .interrupt()
-
           .data(this.data_apilada)
-
           .transition()
           .delay((d, i) => i * 5)
           .duration(0.5 * this.duracion_transicio_cambio_data)
+          //.attr("d",d=>this.area(d))
           .attr("d", (d) => this.generadorAreaBezier(d))
           .style("fill", (d, i) => this.variables[i].color);
       } else {
@@ -435,10 +430,15 @@ export default {
           .style("fill", (d, i) => this.variables[i].color);
       }
     },
-    creandoBarras() {
-      this.grupo_fondo.selectAll(".g-rects").remove();
-    },
+    /**
+     * hice unas barras para resaltar en mouseover la fecha seleccionada y porque me gusta el resultado 
+     * visual con ellas 
+     */
     actualizandoBarras() {
+      /**usé el método join, podría usarlo en los streams también para optimizar código, pero será en otro momento jeje 
+       * el primer join agrega unos grupos por categoría (color), y el segundo agrega los rectángulos correspondientes a 
+       * la categoría
+       */
       this.grupo_contenedor
         .selectAll(".g-rects")
         .data(this.data_apilada)
@@ -488,6 +488,7 @@ export default {
       this.actualizandoStreams(false);
       this.actualizandoBarras();
     },
+    // Esta función crea el texto del tooltip y lo posiciona
     mostrarTooltip(evento) {
       if (this.hover_activo) {
         this.tooltip_bandas = this.escalaX.step();
@@ -512,6 +513,9 @@ export default {
                 0.5 * (this.ancho + this.margen.izquierda + this.margen.derecha)
                 ? `${
                     evento.layerX -
+                    this.ancho_tooltip +
+                    this.ancho_leyenda_y -
+                    20< 0 ?  0 : evento.layerX -
                     this.ancho_tooltip +
                     this.ancho_leyenda_y -
                     20
@@ -576,7 +580,14 @@ export default {
         this.tooltip_data_seleccionada = {};
       }
     },
+    /**
+     * Así como d3 tiene una función que te genera un String "d" para un path
+     * puedes hacer tus propias funciones que te generen paths. Esta es una que hice,
+     * usa muchas curvas de bezier
+     * 
+     */
     generadorAreaBezier(datum) {
+    
       if (datum.length > 2) {
         var txt = `M ${this.escalaX(
           +datum[0].data[this.nombre_columna_horizontal]

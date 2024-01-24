@@ -2,58 +2,54 @@
   <div id="vista-defunciones-temporales">
     <div class="contenedor-flex">
       <div class="contenedor-texto">
-        <router-link to="/en">Read in English</router-link>
-
-        <h1>Mortalidad de niñas, niños y adolescentes en México</h1>
+        <router-link to="/">Leer en español</router-link>
+        <h1>Child and Adolescents Mortality in Mexico</h1>
         <p>
-          Este proyecto surge a partir del
-          <i> Datatón sobre la niñez y adolescencia en México 2023</i>. La
-          herramienta está dirigida a personas investigadoras, tomadoras de
-          decisiones y a la ciudadania con interés en obtener información
-          preventiva para las infancias.
+          This project emerged from the
+          <i> Datatón sobre la niñez y adolescencia en México 2023</i>. The
+          tool is aimed at researchers, decision-makers, and citizens interested
+          in obtaining preventive information for children.
         </p>
         <p>
-          A partir de una exploración de la base de datos
+          Based on an exploration of the Mortality Database
           <a
             href="https://datamx.io/dataset/mortalidad-de-ninas-ninos-y-adolescentes-en-chiapas-2021"
             ><i>Mortalidad de Niñas, Niños y Adolescentes en Chiapas 2021</i></a
           >
-          proporcionada por <a href="https://redias.org/">REDIAS</a> se encontró
-          que para el rango de edad entre 14 y 15 años, una de las principales
-          causas de muerte son las lesiones autoinflingidas intencionalmente,
-          así como las agresiones fueron la principal causa de muerte de
-          personas de 16 años. A partir de ello surgen varias preguntas ¿cómo ha
-          impactado la pandemia en las causas de muerte de la población
-          adolescente e infantil?, ¿existe alguna estacionalidad anual en la
-          cual ciertas causas de defunción incrementen? y ¿Cúales son las
-          principales causas de mortalidad para cualquier grupo de edad y como
-          han cambiado estas causas a lo largo de tiempo?
+          provided by <a href="https://redias.org/">REDIAS</a> it was found that
+          for the age range between 14 and 15 years old, one of the main causes
+          of death is intentionally self-inflicted injuries, and assaults were
+          the leading cause of death for 16-year-olds. From this, several
+          questions arise: How has the pandemic impacted the causes of death for
+          the adolescent and child population? Is there an annual seasonality in
+          which certain causes of death increase? And what are the main causes
+          of mortality for any age group, and how have these causes changed over
+          time?
         </p>
 
         <p>
-          Para responder las preguntas anteriores se usaron los
+          To answer the aforementioned questions, microdata from
           <a href="https://www.inegi.org.mx/programas/mortalidad/#Microdatos"
-            >microdatos de mortalidad de INEGI</a
-          >
-          y las
+            >microdata from INEGI on mortality
+          </a>
+          and
           <a
             href="https://datos.gob.mx/busca/dataset/proyecciones-de-la-poblacion-de-mexico-y-de-las-entidades-federativas-2016-2050/resource/353817d4-ac9d-4709-bbd9-52936fe0423f"
-            >proyecciones de población de CONAPO a mitad de año</a
-          >
-          para hacer el cálculo de las tasas y reducir sesgos poblacionales. Con
-          las visualizaciones que se muestran a continuación se pretende dar a
-          la persona usuaria las herramientas para responder las preguntas
-          anteriores. Puedes modificar los controles para obtener información
-          del grupo poblacional de tu interés.
+            >mid-year population projections from CONAPO
+          </a>
+          were used to calculate rates and reduce population biases. The
+          visualizations presented below aim to provide users with the tools to
+          answer the aforementioned questions. You can adjust the controls to
+          obtain information on the specific population group of your interest.
         </p>
       </div>
     </div>
     <div class="tablero">
       <div class="col-controles">
-        <h2>Controles</h2>
+        <h2>Controls</h2>
         <div class="contenedor-selectores">
           <div class="contenedor-selector">
-            <p>Entidad</p>
+            <p>State</p>
             <select
               name="selector-entidad"
               id="selector-entidad"
@@ -69,7 +65,7 @@
             </select>
           </div>
           <div class="contenedor-selector">
-            <p>Sexo</p>
+            <p>Gender</p>
             <select
               name="selector-sexo"
               id="selector-sexo"
@@ -82,30 +78,29 @@
           </div>
         </div>
 
-        <p>Selecciona un rango de edad (años)</p>
+        <p>Please select an age range (years).</p>
 
         <OrdinalBrush :getter_store="'cambiaRangoEdadPrincipal'"></OrdinalBrush>
         <div class="contenedor-barras">
           <h3>
-            Tasa de mortalidad en 2021 por estado de personas
+            Mortality Rate in 2021 by State for Individuals Aged
             {{
               ` ${
                 rango_edad_principal.length > 1
                   ? rango_edad_principal[0] +
-                    " a " +
-                    rango_edad_principal.slice(-1) +
-                    " años "
-                  : rango_edad_principal[0] + " año"
+                    " to " +
+                    rango_edad_principal.slice(-1)
+                  : rango_edad_principal[0]
               }`
             }}
-            y de
+            ,
             {{
               ` ${
                 sexo_seleccionado == 0
-                  ? "ambos sexos"
+                  ? " Both Genders"
                   : sexo_seleccionado == 1
-                  ? "sexo masculino"
-                  : "sexo femenino"
+                  ? " Male Gender"
+                  : " Female Gender"
               }`
             }}
           </h3>
@@ -113,12 +108,12 @@
             :barras_id="'id-barras'"
             :datos="data_estatal_2021"
             :variables="[
-              { id: 'tasa', nombre_colores: 'tasa', color: '#ffffcc' },
+              { id: 'tasa', nombre_colores: 'rate', color: '#ffffcc' },
             ]"
             :nombre_barra="'entidad'"
             :nombre_color="'nombre_colores'"
-            titulo_eje_y="Estados"
-            titulo_eje_x="Tasa de mortalidad "
+            titulo_eje_y="States"
+            titulo_eje_x="Mortality rate "
             orientacion="horizontal"
             :seleccionada="estado_seleccionado"
             :margen="{ arriba: 10, abajo: 30, izquierda: 54, derecha: 0 }"
@@ -130,56 +125,55 @@
       <div class="col-visualizaciones">
         <h2>
           {{
-            `Tasa de defunciones anuales ${
+            `Annual Death Rate ${
               estado_seleccionado == "00"
-                ? "a nivel nacional"
-                : " en " + claves_estatales[estado_seleccionado]
+                ? " Nationwide "
+                : " in " + claves_estatales[estado_seleccionado]
             }`
           }}
-          de personas de
+          for Individuals Aged
           {{
             ` ${
               rango_edad_principal.length > 1
                 ? rango_edad_principal[0] +
-                  " a " +
-                  rango_edad_principal.slice(-1) +
-                  " años "
-                : rango_edad_principal[0] + " año"
+                  " to " +
+                  rango_edad_principal.slice(-1)
+                : rango_edad_principal[0]
             }`
-          }}
-          y de
+          }},
           {{
             ` ${
               sexo_seleccionado == 0
-                ? "ambos sexos"
+                ? " Both Genders"
                 : sexo_seleccionado == 1
-                ? "sexo masculino"
-                : "sexo femenino"
+                ? " Male Gender"
+                : " Female Gender"
             }`
           }}
         </h2>
         <p>
-          El diagrama de areas apiladas ordenadas muestra, con el grosor de cada
-          franja, la tasa de defunciones por año y por causa. Además, estas
-          franjas se reordenan de abajo hacia arriba de forma ascendente
-          permitiendo identificar el top 10 de causas por año mediante el globo
-          de información al pasar tu cursor en un año
+          The ordered stacked area chart displays, using the thickness of each
+          stripe, the death rate per year and by cause. Additionally, these
+          stripes are reordered from bottom to top in an ascending manner,
+          allowing the identification of the top 10 causes per year by hovering
+          your cursor over a year, which triggers an information tooltip.
         </p>
         <StreamGraph
           :stream_graph_id="'streamgraph1'"
           :datos="datos"
           :variables="variables"
           nombre_columna_horizontal="ANIO_OCUR"
-          titulo_eje_y="Tasa de mortalidad por 100 mil habitantes *"
-          titulo_eje_x="Año"
+          titulo_eje_y="Death rate per 100,000 inhabitants *"
+          titulo_eje_x="Year"
           :class="{ cargando: esta_cargando }"
           :hover_activo="!esta_cargando"
         >
         </StreamGraph>
 
         <p>
-          * Habitantes con las características anuales seleccionadas en los
-          filtros de edad, sexo y entidad o nacional.
+          * Population with the selected annual characteristics in the age,
+          gender, and state or nationwide filters. <br/>
+          ** The diseases were translated into English using the python library googletrans.
         </p>
         <div class="nomenclatura">
           <div
@@ -188,58 +182,54 @@
             class="variable"
           >
             <span :style="{ background: variable.color }"></span>
-            <b>{{ i + 1 }}<sup>a</sup> causa:</b> {{ catalogo[variable.cve] }}
+            <b>{{ i + 1 }}<sup>{{ i==0? "st": i==1?"nd": i==2?"rd": "th" }}</sup> cause:</b> {{ catalogo[variable.cve] }}
           </div>
         </div>
         <h2>
-          Acumulado mensual de defunciones
+          Monthly Cumulative Deaths
           {{
             ` ${
               estado_seleccionado == "00"
-                ? "a nivel nacional"
-                : " en " + claves_estatales[estado_seleccionado]
+                ? " Nationwide"
+                : " in " + claves_estatales[estado_seleccionado]
             }`
           }}
-          de personas de
+          for Individuals Aged
           {{
             ` ${
               rango_edad_principal.length > 1
                 ? rango_edad_principal[0] +
-                  " a " +
-                  rango_edad_principal.slice(-1) +
-                  " años "
-                : rango_edad_principal[0] + " año"
+                  " to " +
+                  rango_edad_principal.slice(-1)
+                : rango_edad_principal[0]
             }`
           }}
-          y de
+          , for
           {{
             ` ${
               sexo_seleccionado == 0
-                ? "ambos sexos"
+                ? "Both Genders"
                 : sexo_seleccionado == 1
-                ? "sexo masculino"
-                : "sexo femenino"
+                ? "Male Genders"
+                : "Female Genders"
             }`
           }}
-          de 2012 a 2021 del top 10 de causas de defunción
+          , from 2012 to 2021, for the Top 10 Causes of Death
         </h2>
         <p>
-          Esta visualización de areas apiladas radial muestra el número de
-          defunciones por cada causa que han ocurrido desde 2012 a 2021 según el
-          mes. Permite identificar en cuales periodos alguna de estas causas ha
-          cobrado mayor relevancia.
+          This radial stacked area visualization displays the number of deaths
+          for each cause that have occurred from 2012 to 2021, according to the
+          month. It allows you to identify periods in which any of these causes
+          have become more prominent.
         </p>
-
         <Huevo
           id_stream_circular="huevo"
           :variables="
-            totales
-              .slice(0, 10)
-              .map((d) => ({
-                cve: d.cve,
-                color: d.color,
-                causa: catalogo[d.cve],
-              }))
+            totales.slice(0, 10).map((d) => ({
+              cve: d.cve,
+              color: d.color,
+              causa: catalogo[d.cve],
+            }))
           "
           :datos="casos_mensuales_agrupados"
         >
@@ -254,11 +244,11 @@ import StreamGraph from "../components/StreamGraph.vue";
 import Barras from "../components/Barras.vue";
 import Huevo from "../components/Huevo.vue";
 
-import catalogo from "@/assets/data/catalogo.json";
+import catalogo from "@/assets/data/catalogo_en.json";
 import OrdinalBrush from "@/components/OrdinalBrush.vue";
 import { mapState } from "vuex";
 var claves_estatales = {
-  "00": "Nacional",
+  "00": "National",
   "01": "Aguascalientes",
   "02": "Baja California",
   "03": "Baja California Sur",
@@ -376,7 +366,7 @@ export default {
       sexos: [
         { cve: 1, sexo: "Masculino" },
         { cve: 2, sexo: "Femenino" },
-        { cve: 0, sexo: "Ambos" },
+        { cve: 0, sexo: "Both" },
       ],
       totales: [],
       esta_cargando: true,

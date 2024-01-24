@@ -66,18 +66,18 @@ export default {
       parseDate: d3.timeParse("%d/%m/%Y"),
       descripcion: "",
       meses: [
-        "Enero",
-        "Febrero",
-        "Marzo",
-        "Abril",
-        "Mayo",
-        "Junio",
-        "Julio",
-        "Agosto",
-        "Septiembre",
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
         "Oct.",
-        "Noviembre",
-        "Diciembre",
+        "November",
+        "Dicember",
       ],
       alto:0
     };
@@ -241,7 +241,7 @@ export default {
             .attr("class", "radial-escala")
             .style("fill", "#000")
             .attr("text-anchor","middle")
-            .text("Defunciones")
+            .text("Deaths")
         )
         .call((g) =>
           g
@@ -339,11 +339,15 @@ export default {
       this.tooltip
         .style("visibility", "visible")
         .style(
-          "left",
+          "left",window.innerWidth> 768 ?
           `${
             angulo < Math.PI
               ? evento.layerX - this.ancho_tooltip - 15
               : evento.layerX + 15
+          }px`:`${
+            angulo < Math.PI
+              ? (evento.layerX - this.ancho_tooltip - 15<0?0:  evento.layerX - this.ancho_tooltip - 15)
+              : (evento.layerX + 15 + this.ancho_tooltip > this.ancho ? this.ancho - this.ancho_tooltip : evento.layerX + 15)
           }px`
         )
         .attr("width", this.ancho_tooltip)
