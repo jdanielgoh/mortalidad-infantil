@@ -1,16 +1,21 @@
-# web-defunciones-infancia
+# Mortalidad de niñas, niños y adolescentes en México
 
-## Project setup
+En este repositorio se encuentra el código con el que se desarrolló el proyecto [Mortalidad de niñas, niños y adolescentes en México](https://tirandocodigo.mx/proyectos/mortalidad-infancia/), ganador del Datatón sobre niñez y adolescencia en México 2023, organizado por REDIM. Es un proyecto que busca ser colaborativo y continuar en crecimiento. La colaboración y retroalimentación es más que bienvenida.
+
+
+
+
+## Configuracion
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Desarrollo
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Producción
 ```
 npm run build
 ```
