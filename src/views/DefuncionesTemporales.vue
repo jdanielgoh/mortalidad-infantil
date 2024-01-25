@@ -84,7 +84,10 @@
 
         <p>Selecciona un rango de edad (años)</p>
 
-        <OrdinalBrush :getter_store="'cambiaRangoEdadPrincipal'"></OrdinalBrush>
+        <div class="contenedor-brush" :id="brush_id">
+          <svg></svg>
+        </div>
+
         <div class="contenedor-barras">
           <h3>
             Tasa de mortalidad en 2021 por estado de personas
@@ -233,13 +236,11 @@
         <Huevo
           id_stream_circular="huevo"
           :variables="
-            totales
-              .slice(0, 10)
-              .map((d) => ({
-                cve: d.cve,
-                color: d.color,
-                causa: catalogo[d.cve],
-              }))
+            totales.slice(0, 10).map((d) => ({
+              cve: d.cve,
+              color: d.color,
+              causa: catalogo[d.cve],
+            }))
           "
           :datos="casos_mensuales_agrupados"
         >
@@ -255,7 +256,6 @@ import Barras from "../components/Barras.vue";
 import Huevo from "../components/Huevo.vue";
 
 import catalogo from "@/assets/data/catalogo.json";
-import OrdinalBrush from "@/components/OrdinalBrush.vue";
 import { mapState } from "vuex";
 var claves_estatales = {
   "00": "Nacional",
@@ -333,10 +333,27 @@ export default {
   name: "DefuncionesTemporales",
   components: {
     StreamGraph,
-    OrdinalBrush,
     Barras,
     Huevo,
   },
+  props:{
+        brush_id: {
+            type: String,
+            default: "brush-id"
+        },
+        alto:{
+            type: Number,
+            default: 40
+        },
+        dominio: {
+            type: Array,
+            default: ()=> [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+        },
+        getter_store: {
+            type: String,
+            default: ""
+        }
+    },
   data() {
     return {
       claves_estatales: claves_estatales,
@@ -352,6 +369,8 @@ export default {
           color: "rgba(0,0,0)",
         };
       }),
+      listado_seleccionado: [],
+
       colores_top_10: [
         "#002642",
         "#840032",
@@ -387,6 +406,48 @@ export default {
   },
   mounted() {
     this.$ga.page("/");
+            this.ancho = document.querySelector(`#${this.brush_id}`)
+            .clientWidth;
+        
+        this.x = d3.scalePoint()
+            .domain(this.dominio)
+            .range([0, this.ancho])
+            .padding(0.5)
+
+        this.svg = d3.select(`#${this.brush_id} svg`)
+            .attr("viewBox", [0, 0, this.ancho, this.alto]);
+
+        this.brush = d3.brushX()
+            .on("start brush end", this.brushed)
+            .on("end.snap", this.brushended);
+
+        this.bar = this.svg
+            .append("g")
+            .style("fill","#e2e2e2")
+            .selectAll("rect")
+            .data(this.x.domain())
+            .join("rect")
+            .attr("x", d => this.x(d) - this.x.step() / 2)
+            .attr("height", this.alto)
+            .attr("width", this.x.step());
+        
+        this.svg.append("g")
+            .attr("text-anchor", "middle")
+            .attr("transform", `translate(${this.x.bandwidth() / 2},${this.alto / 2})`)
+            .selectAll("text")
+            .data(this.x.domain())
+            .join("text")
+            .attr("x", d => this.x(d))
+            .attr("dy", "0.35em")
+            .attr("font-size", "12px")
+
+            .text(d => d);
+        
+        this.g = this.svg.append("g")
+            .call(this.brush);
+
+        this.brushed({selection: [0, this.ancho]})
+        this.brushended({selection: [0, this.ancho], sourceEvent:true})
   },
   beforeMount() {
     d3.csv("data/poblaciones_conapo.csv").then((data_conapo) => {

@@ -246,6 +246,7 @@ import Huevo from "../components/Huevo.vue";
 
 import catalogo from "@/assets/data/catalogo_en.json";
 import OrdinalBrush from "@/components/OrdinalBrush.vue";
+
 import { mapState } from "vuex";
 var claves_estatales = {
   "00": "National",
