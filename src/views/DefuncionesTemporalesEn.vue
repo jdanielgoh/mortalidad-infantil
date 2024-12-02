@@ -13,8 +13,8 @@
         <p>
           Based on an exploration of the Mortality Database
           <a
-            href="https://datamx.io/dataset/mortalidad-de-ninas-ninos-y-adolescentes-en-chiapas-2021"
-            ><i>Mortalidad de Niñas, Niños y Adolescentes en Chiapas 2021</i></a
+            href="https://datamx.io/dataset/mortalidad-de-ninas-ninos-y-adolescentes-en-chiapas-2022"
+            ><i>Mortalidad de Niñas, Niños y Adolescentes en Chiapas 2022</i></a
           >
           provided by <a href="https://redias.org/">REDIAS</a> it was found that
           for the age range between 14 and 15 years old, one of the main causes
@@ -83,7 +83,7 @@
         <OrdinalBrush :getter_store="'cambiaRangoEdadPrincipal'"></OrdinalBrush>
         <div class="contenedor-barras">
           <h3>
-            Mortality Rate in 2021 by State for Individuals Aged
+            Mortality Rate in 2023 by State for Individuals Aged
             {{
               ` ${
                 rango_edad_principal.length > 1
@@ -106,7 +106,7 @@
           </h3>
           <Barras
             :barras_id="'id-barras'"
-            :datos="data_estatal_2021"
+            :datos="data_estatal_2023"
             :variables="[
               { id: 'tasa', nombre_colores: 'rate', color: '#ffffcc' },
             ]"
@@ -214,11 +214,11 @@
                 : "Female Genders"
             }`
           }}
-          , from 2012 to 2021, for the Top 10 Causes of Death
+          , from 2014 to 2023, for the Top 10 Causes of Death
         </h2>
         <p>
           This radial stacked area visualization displays the number of deaths
-          for each cause that have occurred from 2012 to 2021, according to the
+          for each cause that have occurred from 2014 to 2023, according to the
           month. It allows you to identify periods in which any of these causes
           have become more prominent.
         </p>
@@ -371,7 +371,7 @@ export default {
       totales: [],
       esta_cargando: true,
       sexo_seleccionado: 0,
-      data_estatal_2021: [{ tasa: 0 }],
+      data_estatal_2023: [{ tasa: 0 }],
       casos_mensuales_agrupados: [{ data: [] }],
     };
   },
@@ -385,7 +385,7 @@ export default {
         d.POBLACION = +d.POBLACION;
       });
       this.data_conapo_completa = data_conapo;
-      d3.csv("data/datos_2012_2021.csv").then((data) => {
+      d3.csv("data/datos_2014_2023.csv").then((data) => {
         this.data_completa = data;
         this.procesamientoDatos(
           this.data_completa.filter((d) =>
@@ -408,8 +408,8 @@ export default {
           (d) => d.SEXO == this.sexo_seleccionado
         );
       }
-      let estatales_2021 = d3.rollup(
-        [...data_filtrada].filter((d) => d.ANIO_OCUR == 2021),
+      let estatales_2023 = d3.rollup(
+        [...data_filtrada].filter((d) => d.ANIO_OCUR == 2023),
         (v) => v.length,
         (d) => d.ENT_OCURR
       );
@@ -434,7 +434,7 @@ export default {
       let poblaciones_conapo = this.data_conapo_completa.filter((d) =>
         this.rango_edad_principal.includes(d.EDAD)
       );
-      let conapo_2021 = [...poblaciones_conapo].filter((d) => d.ANIO == 2021);
+      let conapo_2023 = [...poblaciones_conapo].filter((d) => d.ANIO == 2023);
       poblaciones_conapo = poblaciones_conapo.filter(
         (d) => d.CVE_GEO == this.estado_seleccionado
       );
@@ -443,7 +443,7 @@ export default {
         poblaciones_conapo = poblaciones_conapo.filter(
           (d) => d.SEXO == this.sexo_seleccionado
         );
-        conapo_2021 = conapo_2021.filter(
+        conapo_2023 = conapo_2023.filter(
           (d) => d.SEXO == this.sexo_seleccionado
         );
       }
@@ -453,26 +453,26 @@ export default {
         (d) => d.ANIO
       );
 
-      conapo_2021 = d3.rollup(
-        conapo_2021,
+      conapo_2023 = d3.rollup(
+        conapo_2023,
         (v) => d3.sum(v.map((dd) => dd.POBLACION)),
         (d) => d.CVE_GEO
       );
-      let data_estatal_2021 = [];
-      estatales_2021.set("00", d3.sum(Array.from(estatales_2021.values())));
+      let data_estatal_2023 = [];
+      estatales_2023.set("00", d3.sum(Array.from(estatales_2023.values())));
       for (var i = 0; i < this.entidades.length; i++) {
-        data_estatal_2021.push({
+        data_estatal_2023.push({
           entidad: claves_estatales_abr[this.entidades[i].cve],
           tasa:
             100000 *
-            (estatales_2021.get(this.entidades[i].cve) /
-              conapo_2021.get(this.entidades[i].cve)),
-          defunciones: estatales_2021.get(this.entidades[i].cve),
-          poblacion: conapo_2021.get(this.entidades[i].cve),
+            (estatales_2023.get(this.entidades[i].cve) /
+              conapo_2023.get(this.entidades[i].cve)),
+          defunciones: estatales_2023.get(this.entidades[i].cve),
+          poblacion: conapo_2023.get(this.entidades[i].cve),
           clave: this.entidades[i].cve,
         });
       }
-      this.data_estatal_2021 = data_estatal_2021;
+      this.data_estatal_2023 = data_estatal_2023;
 
       //
       for (var i = 0; i < anios.length; i++) {

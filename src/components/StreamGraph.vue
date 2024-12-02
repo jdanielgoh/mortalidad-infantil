@@ -128,7 +128,7 @@ export default {
             ];
           })
           .sort((a, b) => b[1] - a[1])
-          .map((d) => {console.log(d); return d[0]})
+          .map((d) => { return d[0]})
           .slice(0, 10);
         return `Año: <b>${
           this.tooltip_data_seleccionada[this.nombre_columna_horizontal]
@@ -194,7 +194,7 @@ export default {
     // El eje x se construyó artesanalmente, no se usaron funciones axis de d3 para este eje
     this.ejes_anios = this.grupo_fondo
       .selectAll("g.ejes-anios")
-      .data(d3.range(2012, 2022))
+      .data(d3.range(2014, 2024))
       .enter();
     this.textos_ejes_anios = this.ejes_anios.append("text");
 
